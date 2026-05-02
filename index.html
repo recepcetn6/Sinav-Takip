@@ -698,6 +698,12 @@ input[type="file"]:hover{border-color:var(--accent);}
 
 /* ── BEFORE → AFTER KARŞILAŞTIRMA ── */
 .ba-tablo{display:flex;flex-direction:column;gap:8px;}
+.ba-tablo-header{display:flex;align-items:center;gap:12px;padding:4px 16px 10px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:4px;}
+.ba-th-ders{width:130px;flex-shrink:0;font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;}
+.ba-th-karsilastir{display:flex;align-items:center;flex:1;gap:8px;min-width:0;}
+.ba-th-s{flex:1;min-width:0;font-size:10.5px;font-weight:600;color:var(--text-muted);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 4px;background:rgba(255,255,255,0.03);border-radius:7px;}
+.ba-th-ok{flex:0 0 22px;min-width:22px;text-align:center;font-size:11px;color:rgba(255,255,255,0.25);}
+.ba-th-delta{min-width:68px;flex-shrink:0;font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;text-align:center;}
 .ba-satir{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-left:3px solid;border-radius:12px;padding:13px 16px;transition:background .15s;}
 .ba-satir:hover{background:rgba(255,255,255,0.055);}
 .ba-satir.ba-totals{border-left-color:#64748b!important;background:rgba(255,255,255,0.02);}
@@ -706,26 +712,30 @@ input[type="file"]:hover{border-color:var(--accent);}
 .ba-ad strong{font-size:12px;color:var(--white);display:block;line-height:1.2;}
 .ba-ad span{font-size:10px;color:var(--text-muted);}
 .ba-karsilastir{display:flex;align-items:center;flex:1;gap:8px;min-width:0;}
-.ba-skor{text-align:center;padding:7px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:9px;min-width:60px;flex-shrink:0;}
+.ba-skor{text-align:center;padding:7px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:9px;flex:1;min-width:0;}
 .ba-skor-val{font-size:17px;font-weight:700;display:block;line-height:1;color:var(--text-muted);}
-.ba-skor-lbl{font-size:9px;color:var(--text-muted);white-space:nowrap;}
-.ba-ok-kap{flex:1;display:flex;align-items:center;min-width:20px;}
+.ba-ok-kap{flex:0 0 22px;min-width:22px;display:flex;align-items:center;justify-content:center;}
 .ba-ok-cizgi{flex:1;height:1px;background:rgba(255,255,255,0.08);}
 .ba-ok-ikon{font-size:10px;color:rgba(255,255,255,0.15);margin-left:-1px;flex-shrink:0;}
 .ba-delta{flex-shrink:0;display:flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:20px;min-width:68px;justify-content:center;}
 .ba-delta.up{background:rgba(52,211,153,0.14);color:#34d399;}
 .ba-delta.dn{background:rgba(248,113,113,0.14);color:#f87171;}
 .ba-delta.nt{background:rgba(148,163,184,0.1);color:#94a3b8;}
+/* ── Öğrenci hoş geldin ── */
+.ogr-hg-kart{background:linear-gradient(135deg,rgba(232,168,56,0.1),rgba(232,168,56,0.04));border:1px solid rgba(232,168,56,0.22);border-radius:16px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px;}
+.ogr-hg-avatar{width:46px;height:46px;background:linear-gradient(135deg,var(--accent),var(--accent-light));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 4px 14px rgba(232,168,56,0.25);}
+.ogr-hg-ad{font-size:19px;font-weight:700;color:var(--white);line-height:1.2;}
+.ogr-hg-no{font-size:12px;color:var(--text-muted);margin-top:3px;display:flex;align-items:center;gap:5px;}
 /* ── Mobil: Before/After karşılaştırma ── */
 @media(max-width:640px){
   .ba-satir{flex-wrap:wrap;padding:10px 12px;gap:5px 8px;}
   .ba-ders{width:auto;flex:1;min-width:0;}
   .ba-delta{flex-shrink:0;font-size:11px;padding:4px 10px;min-width:54px;}
   .ba-karsilastir{width:100%;gap:6px;}
-  .ba-skor{flex:1;min-width:0;padding:7px 8px;}
   .ba-skor-val{font-size:15px;}
-  .ba-skor-lbl{overflow:hidden;text-overflow:ellipsis;max-width:100%;}
   .ba-ok-kap{flex:0 0 22px;min-width:22px;}
+  .ba-tablo-header{padding:4px 12px 8px;}
+  .ba-th-ders{width:auto;flex:1;min-width:0;}
 }
 @media(max-width:400px){
   .ba-emoji{font-size:16px;}
@@ -3974,6 +3984,19 @@ function renderKarsilastirma(kapId,canvasId,sonuclar){
       </div>`).join('');
   }
 
+  // Kolon başlığı (deneme adları bir kez üstte)
+  const s1Kisa=s1.deneme_adi.length>18?s1.deneme_adi.slice(0,16)+'…':s1.deneme_adi;
+  const s2Kisa=s2.deneme_adi.length>18?s2.deneme_adi.slice(0,16)+'…':s2.deneme_adi;
+  const taHeader=`<div class="ba-tablo-header">
+    <div class="ba-th-ders">Ders</div>
+    <div class="ba-th-karsilastir">
+      <div class="ba-th-s">${s1Kisa}</div>
+      <div class="ba-th-ok">→</div>
+      <div class="ba-th-s" style="color:var(--white)">${s2Kisa}</div>
+    </div>
+    <div class="ba-th-delta">Değişim</div>
+  </div>`;
+
   // Satır oluştur
   function baRow(e){
     const isUp=e.delta>0.01, isDown=e.delta<-0.01;
@@ -3990,15 +4013,9 @@ function renderKarsilastirma(kapId,canvasId,sonuclar){
         </div>
       </div>
       <div class="ba-karsilastir">
-        <div class="ba-skor">
-          <span class="ba-skor-val">${e.n1.toFixed(1)}</span>
-          <span class="ba-skor-lbl">${s1.deneme_adi}</span>
-        </div>
+        <div class="ba-skor"><span class="ba-skor-val">${e.n1.toFixed(1)}</span></div>
         <div class="ba-ok-kap"><div class="ba-ok-cizgi"></div><i class="fas fa-chevron-right ba-ok-ikon"></i></div>
-        <div class="ba-skor" style="border-color:${tC}33">
-          <span class="ba-skor-val" style="color:${tC}">${e.n2.toFixed(1)}</span>
-          <span class="ba-skor-lbl">${s2.deneme_adi}</span>
-        </div>
+        <div class="ba-skor" style="border-color:${tC}33"><span class="ba-skor-val" style="color:${tC}">${e.n2.toFixed(1)}</span></div>
       </div>
       <div class="ba-delta ${dCls}">${dIco} ${e.delta>0?'+':''}${e.delta.toFixed(1)}</div>
     </div>`;
@@ -4010,9 +4027,9 @@ function renderKarsilastirma(kapId,canvasId,sonuclar){
   const totalsRow=`<div class="ba-satir ba-totals">
     <div class="ba-ders"><span class="ba-emoji">📊</span><div class="ba-ad"><strong>Toplam</strong><span>Net</span></div></div>
     <div class="ba-karsilastir">
-      <div class="ba-skor"><span class="ba-skor-val">${topN1.toFixed(1)}</span><span class="ba-skor-lbl">${s1.deneme_adi}</span></div>
+      <div class="ba-skor"><span class="ba-skor-val">${topN1.toFixed(1)}</span></div>
       <div class="ba-ok-kap"><div class="ba-ok-cizgi"></div><i class="fas fa-chevron-right ba-ok-ikon"></i></div>
-      <div class="ba-skor" style="border-color:${totC}33"><span class="ba-skor-val" style="color:${totC}">${topN2.toFixed(1)}</span><span class="ba-skor-lbl">${s2.deneme_adi}</span></div>
+      <div class="ba-skor" style="border-color:${totC}33"><span class="ba-skor-val" style="color:${totC}">${topN2.toFixed(1)}</span></div>
     </div>
     <div class="ba-delta ${totDCls}">${totIco} ${topDelta>=0?'+':''}${topDelta.toFixed(1)}</div>
   </div>`;
