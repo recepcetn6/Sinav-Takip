@@ -3467,12 +3467,13 @@ function ogrDenemeleriYukle(){
   var sdHTML = siradakiDenemeKartHTML();
   if(!denemeler.length){kap.innerHTML=sdHTML+'<div class="bos"><i class="fas fa-inbox"></i><p>Henüz deneme sonucunuz bulunmuyor.</p></div>';return;}
   kap.innerHTML=sdHTML+denemeler.map(d=>`
-    <div class="d-kart" onclick="detayGoster(${d.id})">
-      <div style="flex:1;min-width:0;overflow:hidden">
-        <div style="font-weight:600;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.deneme_adi}</div>
-        <div style="font-size:12px;color:var(--text-muted)">${fTarih(d.tarih)}</div>
+    <div class="d-kart" onclick="detayGoster(${d.id})" style="flex-direction:column;align-items:stretch">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-weight:600;font-size:14px;line-height:1.4">${d.deneme_adi}</div>
+        <i class="fas fa-chevron-right" style="color:var(--text-muted);flex-shrink:0;margin-left:10px"></i>
       </div>
-      <div style="display:flex;align-items:center;gap:14px;flex-shrink:0;margin-left:10px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="font-size:12px;color:var(--text-muted);flex:1">${fTarih(d.tarih)}</div>
         <div style="text-align:right">
           <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">PUAN</div>
           <div style="font-size:18px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace">${(d.puan||0).toFixed(2)}</div>
@@ -3481,7 +3482,6 @@ function ogrDenemeleriYukle(){
           <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">SIRALAMA<br><span style="font-size:9px;text-transform:none;letter-spacing:0">(Kurum)</span></div>
           <span class="s-badge">#${d.kurum_siralama||0}</span>
         </div>
-        <i class="fas fa-chevron-right" style="color:var(--text-muted)"></i>
       </div>
     </div>`).join('');
 }
