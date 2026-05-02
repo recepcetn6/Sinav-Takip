@@ -554,6 +554,38 @@ input[type="file"]:hover{border-color:var(--accent);}
   .tk-gun-no{font-size:10px;}
   /* Ortalamalar - sadece temel sütunlar görünsün */
   table.ort-tablo{font-size:9.5px;}
+
+  /* ── KPI kartları 1 kolon ── */
+  .db-kpi-grid{grid-template-columns:1fr 1fr;}
+  .db-kpi{padding:12px 14px;}
+  .db-kpi-val{font-size:18px;}
+  .db-kpi-lbl{font-size:9.5px;}
+  .db-kpi-sub{font-size:10px;}
+
+  /* ── Gelişim stat chips sarılsın ── */
+  .gel-stat-bar{flex-wrap:wrap;gap:5px;}
+  .gel-stat-chip{flex:1;min-width:60px;}
+
+  /* ── Gelişim header ── */
+  .gel-header{flex-direction:column;gap:8px;}
+  .gel-header .btn{align-self:flex-start;}
+
+  /* ── Gelişim ders kartları ── */
+  .gel-dc{padding:14px 12px;}
+  .gel-dc-net{font-size:22px;}
+
+  /* ── Detay panel istatistikleri ── */
+  .gel-detay-stats{grid-template-columns:repeat(2,1fr);}
+
+  /* ── Karşılaştırma seçim kutuları ── */
+  .k-secim{display:grid;grid-template-columns:1fr 1fr;}
+
+  /* ── Kart padding azalt ── */
+  .kart{padding:14px 12px;}
+
+  /* ── k-baslik sarılsın ── */
+  .k-baslik{gap:8px;}
+  .k-baslik > div:last-child{flex-wrap:wrap;gap:6px;}
 }
 
 /* ── GELİŞİM PREMIUM DASHBOARD ── */
@@ -684,11 +716,23 @@ input[type="file"]:hover{border-color:var(--accent);}
 .ba-delta.up{background:rgba(52,211,153,0.14);color:#34d399;}
 .ba-delta.dn{background:rgba(248,113,113,0.14);color:#f87171;}
 .ba-delta.nt{background:rgba(148,163,184,0.1);color:#94a3b8;}
-@media(max-width:580px){
-  .ba-satir{flex-wrap:wrap;gap:8px;}
-  .ba-ders{width:auto;flex:1;}
-  .ba-karsilastir{width:100%;}
-  .ba-delta{margin-left:auto;}
+/* ── Mobil: Before/After karşılaştırma ── */
+@media(max-width:640px){
+  .ba-satir{flex-wrap:wrap;padding:10px 12px;gap:5px 8px;}
+  .ba-ders{width:auto;flex:1;min-width:0;}
+  .ba-delta{flex-shrink:0;font-size:11px;padding:4px 10px;min-width:54px;}
+  .ba-karsilastir{width:100%;gap:6px;}
+  .ba-skor{flex:1;min-width:0;padding:7px 8px;}
+  .ba-skor-val{font-size:15px;}
+  .ba-skor-lbl{overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+  .ba-ok-kap{flex:0 0 22px;min-width:22px;}
+}
+@media(max-width:400px){
+  .ba-emoji{font-size:16px;}
+  .ba-ad strong{font-size:11px;}
+  .ba-ad span{display:none;}
+  .ba-skor-val{font-size:13px;}
+  .ba-delta{font-size:10px;padding:3px 8px;min-width:46px;}
 }
 
 /* Tooltip overlay */
@@ -774,6 +818,11 @@ input[type="file"]:hover{border-color:var(--accent);}
         </div>
         <button class="btn btn-mavi btn-sm" onclick="gelisimYazdir()"><i class="fas fa-print"></i> Yazdır</button>
       </div>
+      <!-- Performans Analizi — EN ÜSTTE -->
+      <div class="kart" style="margin-bottom:20px">
+        <div class="k-baslik"><div class="k-baslik-sol"><i class="fas fa-lightbulb"></i> Performans Analizi</div></div>
+        <div id="gel-insight-icerik"></div>
+      </div>
       <!-- Ders özet kartları: JS ile doldurulur -->
       <div class="gel-ders-grid" id="gel-ders-grid"></div>
       <!-- Ana puan grafiği -->
@@ -784,16 +833,10 @@ input[type="file"]:hover{border-color:var(--accent);}
         </div>
         <div class="grafik-kap" style="height:230px"><canvas id="g-puan"></canvas></div>
       </div>
-      <!-- Alt satır: sıralama + analiz -->
-      <div class="grid-2">
-        <div class="kart">
-          <div class="k-baslik"><div class="k-baslik-sol"><i class="fas fa-trophy"></i> Sıralama Değişimi</div></div>
-          <div class="grafik-kap"><canvas id="g-siralama"></canvas></div>
-        </div>
-        <div class="kart">
-          <div class="k-baslik"><div class="k-baslik-sol"><i class="fas fa-lightbulb"></i> Performans Analizi</div></div>
-          <div id="gel-insight-icerik"></div>
-        </div>
+      <!-- Alt satır: sıralama -->
+      <div class="kart">
+        <div class="k-baslik"><div class="k-baslik-sol"><i class="fas fa-trophy"></i> Sıralama Değişimi</div></div>
+        <div class="grafik-kap"><canvas id="g-siralama"></canvas></div>
       </div>
     </div>
 
