@@ -555,6 +555,52 @@ input[type="file"]:hover{border-color:var(--accent);}
   /* Ortalamalar - sadece temel sütunlar görünsün */
   table.ort-tablo{font-size:9.5px;}
 }
+
+/* ── GELİŞİM PREMIUM DASHBOARD ── */
+.gel-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px;}
+.gel-header-sol h2{font-size:20px;font-weight:700;color:var(--white);margin-bottom:3px;}
+.gel-header-sol p{font-size:12px;color:var(--text-muted);}
+
+.gel-ders-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+
+.gel-dc{position:relative;overflow:hidden;background:rgba(22,42,68,0.85);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:18px 16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:transform 0.22s,box-shadow 0.22s;}
+.gel-dc:hover{transform:translateY(-3px);}
+.gel-dc-glow{position:absolute;top:-28px;right:-28px;width:90px;height:90px;border-radius:50%;filter:blur(28px);opacity:0.2;pointer-events:none;transition:opacity 0.22s;}
+.gel-dc:hover .gel-dc-glow{opacity:0.35;}
+
+.gel-dc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.gel-dc-ikon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.gel-dc-badge{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:20px;}
+.gel-dc-badge.up{background:rgba(39,192,138,0.14);color:#34d399;}
+.gel-dc-badge.dn{background:rgba(232,93,74,0.14);color:#f87171;}
+.gel-dc-badge.nt{background:rgba(148,163,184,0.1);color:#94a3b8;}
+
+.gel-dc-net{font-size:26px;font-weight:700;line-height:1;margin-bottom:2px;}
+.gel-dc-ders{font-size:11px;color:var(--text-muted);margin-bottom:11px;}
+.gel-sparkline-kap{position:relative;width:100%;height:46px;margin-bottom:8px;}
+.gel-sparkline-kap canvas{position:absolute;top:0;left:0;width:100%!important;height:100%!important;}
+.gel-bm-row{display:flex;gap:10px;flex-wrap:wrap;}
+.gel-bm-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted);}
+.gel-bm-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+
+.gel-stat-bar{display:flex;gap:7px;flex-wrap:wrap;}
+.gel-stat-chip{padding:4px 11px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);border-radius:8px;text-align:center;}
+.gel-stat-chip-val{font-size:14px;font-weight:700;line-height:1.3;}
+.gel-stat-chip-lbl{font-size:10px;color:var(--text-muted);}
+
+.gel-insight-list{display:flex;flex-direction:column;gap:9px;}
+.gel-insight-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);}
+.gel-insight-ico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:1px;}
+.gel-insight-txt strong{display:block;font-size:12px;color:var(--white);margin-bottom:2px;}
+.gel-insight-txt span{font-size:11.5px;color:var(--text-muted);line-height:1.4;}
+
+.gel-top3-bar{display:flex;gap:8px;margin-bottom:12px;}
+.gel-top3{flex:1;padding:10px 8px;background:rgba(255,255,255,0.03);border-radius:10px;text-align:center;border:1px solid rgba(255,255,255,0.06);}
+.gel-top3-val{font-size:18px;font-weight:700;line-height:1;margin-bottom:4px;}
+.gel-top3-lbl{font-size:10px;color:var(--text-muted);line-height:1.4;}
+
+@media(max-width:768px){.gel-ders-grid{grid-template-columns:repeat(2,1fr);gap:10px;}}
+@media(max-width:480px){.gel-ders-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -621,22 +667,33 @@ input[type="file"]:hover{border-color:var(--accent);}
     </div>
 
     <div class="sayfa" id="sayfa-gelisim">
-      <div class="kart">
-        <div class="k-baslik">
-          <div class="k-baslik-sol"><i class="fas fa-chart-line"></i> Puan Gelişimim</div>
-          <button class="btn btn-mavi btn-sm" onclick="gelisimYazdir()"><i class="fas fa-print"></i> Yazdır</button>
+      <!-- Header -->
+      <div class="gel-header">
+        <div class="gel-header-sol">
+          <h2><i class="fas fa-chart-line" style="color:var(--accent);font-size:16px;margin-right:8px"></i>Gelişim Panelim</h2>
+          <p>Deneme bazlı performans analizi ve ilerleme takibi</p>
         </div>
-        <!-- GRAFİK KAPLARI: position:relative + sabit height CSS'de tanımlı -->
-        <div class="grafik-kap"><canvas id="g-puan"></canvas></div>
+        <button class="btn btn-mavi btn-sm" onclick="gelisimYazdir()"><i class="fas fa-print"></i> Yazdır</button>
       </div>
-      <div class="grid-2">
-        <div class="kart">
-          <div class="k-baslik"><div class="k-baslik-sol"><i class="fas fa-bullseye"></i> Net Gelişimi</div></div>
-          <div class="grafik-kap"><canvas id="g-net"></canvas></div>
+      <!-- Ders özet kartları: JS ile doldurulur -->
+      <div class="gel-ders-grid" id="gel-ders-grid"></div>
+      <!-- Ana puan grafiği -->
+      <div class="kart" style="margin-bottom:20px">
+        <div class="k-baslik">
+          <div class="k-baslik-sol"><i class="fas fa-chart-area"></i> Puan Gelişimi</div>
+          <div class="gel-stat-bar" id="gel-stat-bar"></div>
         </div>
+        <div class="grafik-kap" style="height:230px"><canvas id="g-puan"></canvas></div>
+      </div>
+      <!-- Alt satır: sıralama + analiz -->
+      <div class="grid-2">
         <div class="kart">
           <div class="k-baslik"><div class="k-baslik-sol"><i class="fas fa-trophy"></i> Sıralama Değişimi</div></div>
           <div class="grafik-kap"><canvas id="g-siralama"></canvas></div>
+        </div>
+        <div class="kart">
+          <div class="k-baslik"><div class="k-baslik-sol"><i class="fas fa-lightbulb"></i> Performans Analizi</div></div>
+          <div id="gel-insight-icerik"></div>
         </div>
       </div>
     </div>
@@ -3708,56 +3765,165 @@ function renderKarsilastirma(kapId,canvasId,sonuclar){
 
 // ---- GELİŞİM ----
 function gelisimYukle(){
-  const denemeler=ogrDenemeler();
-  if(!denemeler.length) return;
   const db=vt();
-  const etiketler=denemeler.map(d=>d.deneme_adi);
-  const puanlar=denemeler.map(d=>d.puan||0);
+  const ogrNo=hedefOgrenciNo();
+  const tumDenemeler=[...db.denemeler].sort((a,b)=>new Date(a.tarih)-new Date(b.tarih));
+  if(!tumDenemeler.length) return;
+  const etiketler=tumDenemeler.map(d=>d.deneme_adi);
 
-  // Puan grafiği
+  const sonucMap={};
+  db.sonuclar.filter(r=>r.ogrenci_no===ogrNo).forEach(r=>{ sonucMap[r.deneme_id]=r; });
+  const katilanDenemeler=tumDenemeler.filter(d=>sonucMap[d.id]);
+
+  // ── Ders özet kartları ──
+  const dGrid=document.getElementById('gel-ders-grid');
+  dGrid.innerHTML='';
+  DERSLER.forEach(dr=>{ const cid='gsp-'+dr.k; if(GRF[cid]){try{GRF[cid].destroy();}catch(e){} delete GRF[cid];} });
+
+  if(!katilanDenemeler.length){
+    dGrid.innerHTML='<div class="bos" style="grid-column:1/-1"><i class="fas fa-chart-line"></i><p>Henüz deneme sonucunuz bulunmuyor.</p></div>';
+    return;
+  }
+
+  DERSLER.forEach(dr=>{
+    const cid='gsp-'+dr.k;
+    const netler=katilanDenemeler.map(d=>sonucMap[d.id][dr.k+'_net']??0);
+    const sonNet=netler.length?netler[netler.length-1]:null;
+    const oncekiNet=netler.length>1?netler[netler.length-2]:null;
+    let degStr='',degCls='nt';
+    if(sonNet!==null&&oncekiNet!==null){
+      const diff=+(sonNet-oncekiNet).toFixed(1);
+      if(diff>0){degStr='<i class="fas fa-arrow-up"></i> +'+diff;degCls='up';}
+      else if(diff<0){degStr='<i class="fas fa-arrow-down"></i> '+diff;degCls='dn';}
+      else{degStr='<i class="fas fa-minus"></i> 0';degCls='nt';}
+    }
+
+    const div=document.createElement('div');
+    div.className='gel-dc';
+    div.style.borderColor=dr.r+'28';
+    div.style.boxShadow='0 4px 20px '+dr.r+'18';
+    div.innerHTML=
+      '<div class="gel-dc-glow" style="background:'+dr.r+'"></div>'+
+      '<div class="gel-dc-top">'+
+        '<div class="gel-dc-ikon" style="background:'+dr.r+'18;color:'+dr.r+'"><i class="fas '+drIcon(dr.k)+'"></i></div>'+
+        '<span class="gel-dc-badge '+degCls+'">'+(degStr||'<i class="fas fa-minus"></i> —')+'</span>'+
+      '</div>'+
+      '<div class="gel-dc-net" style="color:'+dr.r+'">'+(sonNet!==null?sonNet.toFixed(1):'—')+'</div>'+
+      '<div class="gel-dc-ders">'+dr.a+' · Son Net</div>'+
+      '<div class="gel-sparkline-kap"><canvas id="'+cid+'"></canvas></div>'+
+      '<div class="gel-bm-row">'+
+        '<div class="gel-bm-item"><div class="gel-bm-dot" style="background:'+dr.r+'"></div>Sizin</div>'+
+        '<div class="gel-bm-item"><div class="gel-bm-dot" style="background:rgba(143,164,188,0.5)"></div>Sınıf Ort.</div>'+
+      '</div>';
+    dGrid.appendChild(div);
+
+    const sinifOrt=katilanDenemeler.map(d=>{
+      const kats=db.sonuclar.filter(r=>r.deneme_id===d.id);
+      return kats.length?+(kats.reduce((s,r)=>s+(r[dr.k+'_net']||0),0)/kats.length).toFixed(1):0;
+    });
+    grafikOlustur(cid,{
+      type:'line',
+      data:{
+        labels:katilanDenemeler.map(d=>d.deneme_adi),
+        datasets:[
+          {label:'Sen',data:netler,borderColor:dr.r,backgroundColor:dr.r+'28',fill:true,tension:0.4,borderWidth:2,pointRadius:2,pointHoverRadius:4,spanGaps:false},
+          {label:'Ort',data:sinifOrt,borderColor:'rgba(143,164,188,0.35)',backgroundColor:'transparent',fill:false,tension:0.4,borderWidth:1.5,pointRadius:0,borderDash:[4,4],spanGaps:false}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:c=>c.dataset.label+': '+c.parsed.y.toFixed(1)}}},
+        scales:{x:{display:false},y:{display:false}},
+        animation:{duration:500}
+      }
+    });
+  });
+
+  // ── Stat chips ──
+  const katPuanlar=katilanDenemeler.map(d=>sonucMap[d.id].puan||0);
+  const sonPuan=katPuanlar[katPuanlar.length-1];
+  const enYuksek=Math.max(...katPuanlar);
+  const puanOrt=+(katPuanlar.reduce((a,b)=>a+b,0)/katPuanlar.length).toFixed(0);
+  const statBar=document.getElementById('gel-stat-bar');
+  if(statBar) statBar.innerHTML=[
+    {v:sonPuan,l:'Son Puan',c:'var(--accent)'},
+    {v:enYuksek,l:'En Yüksek',c:'#34d399'},
+    {v:puanOrt,l:'Ortalama',c:'#60a5fa'},
+    {v:katPuanlar.length,l:'Deneme',c:'#a855f7'}
+  ].map(c=>'<div class="gel-stat-chip"><div class="gel-stat-chip-val" style="color:'+c.c+'">'+c.v+'</div><div class="gel-stat-chip-lbl">'+c.l+'</div></div>').join('');
+
+  // ── Ana puan grafiği (gradient area) ──
+  const puanlar=tumDenemeler.map(d=>{ const s=sonucMap[d.id]; return s!=null?(s.puan||0):null; });
   grafikOlustur('g-puan',{
     type:'line',
     data:{labels:etiketler,datasets:[{
       label:'Puan',data:puanlar,
-      borderColor:'#e8a838',backgroundColor:'rgba(232,168,56,0.1)',
-      fill:true,tension:0.4,pointBackgroundColor:'#e8a838',
-      pointRadius:6,borderWidth:2.5,spanGaps:false
+      borderColor:'#e8a838',
+      backgroundColor:ctx=>{
+        const ch=ctx.chart;
+        if(!ch.chartArea) return 'rgba(232,168,56,0.15)';
+        const gr=ch.ctx.createLinearGradient(0,ch.chartArea.top,0,ch.chartArea.bottom);
+        gr.addColorStop(0,'rgba(232,168,56,0.38)');
+        gr.addColorStop(1,'rgba(232,168,56,0.01)');
+        return gr;
+      },
+      fill:true,tension:0.4,pointBackgroundColor:'#e8a838',pointBorderColor:'#0f1e35',pointBorderWidth:2,
+      pointRadius:5,pointHoverRadius:8,borderWidth:2.5,spanGaps:false
     }]},
     options:gOpts()
   });
 
-  // Sadece girdiği denemeler
-  const sonuclar=denemeler.map(d=>db.sonuclar.find(r=>r.deneme_id===d.id&&r.ogrenci_no===hedefOgrenciNo())||null);
-  const netEtiketler=denemeler.filter((_,i)=>sonuclar[i]).map(d=>d.deneme_adi);
-  const netSonuclar=sonuclar.filter(Boolean);
-
-  // Net grafiği
-  grafikOlustur('g-net',{
-    type:'line',
-    data:{labels:netEtiketler,datasets:[
-      {k:'turkce',a:'Türkçe',r:'#4da8e8'},
-      {k:'matematik',a:'Matematik',r:'#e85d4a'},
-      {k:'fen',a:'Fen',r:'#06b6d4'},
-      {k:'sosyal',a:'Sosyal',r:'#27c08a'}
-    ].map(dr=>({
-      label:dr.a,data:netSonuclar.map(s=>s[dr.k+'_net']||0),
-      borderColor:dr.r,backgroundColor:dr.r+'20',
-      tension:0.4,borderWidth:2,pointRadius:4,fill:false,spanGaps:false
-    }))},
-    options:gOpts()
-  });
-
-  // Sıralama grafiği
+  // ── Sıralama grafiği (gradient area) ──
+  const siralamalar=tumDenemeler.map(d=>{ const s=sonucMap[d.id]; return s!=null?(s.kurum_siralama||null):null; });
   grafikOlustur('g-siralama',{
     type:'line',
-    data:{labels:netEtiketler,datasets:[{
-      label:'Kurum Sıralaması',
-      data:netSonuclar.map(s=>s.kurum_siralama||0),
-      borderColor:'#a855f7',backgroundColor:'rgba(168,85,247,0.1)',
-      fill:true,tension:0.4,pointRadius:5,borderWidth:2,spanGaps:false
+    data:{labels:etiketler,datasets:[{
+      label:'Kurum Sıralaması',data:siralamalar,
+      borderColor:'#a855f7',
+      backgroundColor:ctx=>{
+        const ch=ctx.chart;
+        if(!ch.chartArea) return 'rgba(168,85,247,0.12)';
+        const gr=ch.ctx.createLinearGradient(0,ch.chartArea.top,0,ch.chartArea.bottom);
+        gr.addColorStop(0,'rgba(168,85,247,0.32)');
+        gr.addColorStop(1,'rgba(168,85,247,0.01)');
+        return gr;
+      },
+      fill:true,tension:0.4,pointBackgroundColor:'#a855f7',pointBorderColor:'#0f1e35',pointBorderWidth:2,
+      pointRadius:5,pointHoverRadius:8,borderWidth:2,spanGaps:false
     }]},
     options:gOpts(true)
   });
+
+  // ── Performans analizi ──
+  const el=document.getElementById('gel-insight-icerik');
+  if(!el) return;
+  const sonSonuc=sonucMap[katilanDenemeler[katilanDenemeler.length-1].id];
+  const dersNetler=DERSLER.map(dr=>({dr,net:sonSonuc?(sonSonuc[dr.k+'_net']??0):0}));
+  const guclu=dersNetler.reduce((a,b)=>a.net>=b.net?a:b);
+  const zayif=dersNetler.reduce((a,b)=>a.net<=b.net?a:b);
+  const son3=katPuanlar.slice(-3);
+  const trendUp=son3.length>1&&son3[son3.length-1]>son3[0];
+  const trendFark=son3.length>1?Math.abs(son3[son3.length-1]-son3[0]).toFixed(0):'0';
+  const trendC=trendUp?'#34d399':'#f87171';
+
+  el.innerHTML=
+    '<div class="gel-top3-bar">'+
+      '<div class="gel-top3"><div class="gel-top3-val" style="color:#34d399">'+guclu.net.toFixed(1)+'</div><div class="gel-top3-lbl">En İyi Net<br>'+guclu.dr.a+'</div></div>'+
+      '<div class="gel-top3"><div class="gel-top3-val" style="color:#f87171">'+zayif.net.toFixed(1)+'</div><div class="gel-top3-lbl">Geliştirilecek<br>'+zayif.dr.a+'</div></div>'+
+      '<div class="gel-top3"><div class="gel-top3-val" style="color:'+trendC+'">'+(trendUp?'+':'-')+trendFark+'</div><div class="gel-top3-lbl">Son 3 Deneme<br>Puan Farkı</div></div>'+
+    '</div>'+
+    '<div class="gel-insight-list">'+
+      '<div class="gel-insight-row"><div class="gel-insight-ico" style="background:#34d39918;color:#34d399"><i class="fas fa-star"></i></div>'+
+      '<div class="gel-insight-txt"><strong>Güçlü Alan: '+guclu.dr.a+'</strong><span>Son denemede '+guclu.net.toFixed(1)+' net ile en iyi performansınız bu derste.</span></div></div>'+
+      '<div class="gel-insight-row"><div class="gel-insight-ico" style="background:#e8a83818;color:#e8a838"><i class="fas fa-bullseye"></i></div>'+
+      '<div class="gel-insight-txt"><strong>Odaklanılacak Alan: '+zayif.dr.a+'</strong><span>'+zayif.net.toFixed(1)+' net. Bu derste çalışma yoğunluğunu artırabilirsin.</span></div></div>'+
+      '<div class="gel-insight-row"><div class="gel-insight-ico" style="background:'+trendC+'18;color:'+trendC+'"><i class="fas fa-chart-line"></i></div>'+
+      '<div class="gel-insight-txt"><strong>'+(trendUp?'Yükseliş Trendi':'Dikkat: Düşüş')+' · Son 3 Deneme</strong><span>Puanlarınız son 3 denemede '+(trendUp?'+':'-')+trendFark+' puan değişim gösterdi.</span></div></div>'+
+    '</div>';
+}
+
+function drIcon(k){
+  return {turkce:'fa-book-open',sosyal:'fa-landmark',din:'fa-mosque',ingilizce:'fa-language',matematik:'fa-calculator',fen:'fa-flask'}[k]||'fa-circle';
 }
 
 // ============================================================
