@@ -447,15 +447,14 @@ input[type="file"]:hover{border-color:var(--accent);}
   .ders-grid{grid-template-columns:1fr 1fr;}
   main{padding:16px 12px;}
   .giris-kart{padding:35px 25px;width:95vw;}
-  /* Header - logo ve kullanıcı bilgileri kompakt */
-  header{padding:10px 12px;}
-  .ust-logo-kurum{font-size:13px;}
-  .ust-kul-bilgi{font-size:11px;}
-  .h-kul-ad{font-size:11.5px;}
-  .h-kul-alt{font-size:9.5px;}
+  /* Header - kompakt */
+  header{padding:8px 12px;height:auto;min-height:52px;}
+  header h2{font-size:14px;}
+  #h-okul-et{font-size:10px;padding:3px 8px;}
+  #h-kullanici{font-size:11px;}
   .rol-badge{font-size:9px;padding:2px 7px;}
-  .cikis-btn{padding:6px 10px;font-size:11px;}
-  .cikis-btn span{display:none;}
+  .btn-cikis{padding:6px 10px;font-size:11px;}
+  .btn-cikis span{display:none;}
   /* Nav menü - yatay scroll ile tüm butonlar sığsın */
   #nav-bar{flex-wrap:nowrap;overflow-x:auto;padding:8px 10px;gap:6px;scrollbar-width:thin;-webkit-overflow-scrolling:touch;}
   #nav-bar::-webkit-scrollbar{height:3px;}
@@ -536,8 +535,11 @@ input[type="file"]:hover{border-color:var(--accent);}
   .grid-4{grid-template-columns:1fr;}
   .ders-grid{grid-template-columns:1fr;}
   main{padding:12px 10px;}
-  .ust-logo{width:36px;height:36px;font-size:16px;}
-  .ust-logo-kurum{font-size:12px;}
+  header h2{display:none;}
+  #h-okul-et{display:none;}
+  #h-rol-et{display:none;}
+  .logo-mini{width:30px;height:30px;font-size:13px;}
+  .avatar{width:28px;height:28px;font-size:12px;}
   .stat-kart{flex-direction:column;text-align:center;gap:8px;}
   .stat-ikon{margin:0 auto;}
   /* Modal tam ekran */
@@ -588,7 +590,7 @@ input[type="file"]:hover{border-color:var(--accent);}
         <span id="h-kullanici"></span>
         <span id="h-rol-et"></span>
       </div>
-      <button class="btn-cikis" onclick="cikisYap()"><i class="fas fa-sign-out-alt"></i> Çıkış</button>
+      <button class="btn-cikis" onclick="cikisYap()"><i class="fas fa-sign-out-alt"></i> <span>Çıkış</span></button>
     </div>
   </header>
   <nav id="nav-bar"></nav>
