@@ -664,6 +664,33 @@ input[type="file"]:hover{border-color:var(--accent);}
 .db-insight-txt strong{font-size:11.5px;display:block;margin-bottom:2px;}
 .db-insight-txt span{font-size:11px;color:var(--text-muted);line-height:1.5;}
 
+/* ── BEFORE → AFTER KARŞILAŞTIRMA ── */
+.ba-tablo{display:flex;flex-direction:column;gap:8px;}
+.ba-satir{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-left:3px solid;border-radius:12px;padding:13px 16px;transition:background .15s;}
+.ba-satir:hover{background:rgba(255,255,255,0.055);}
+.ba-satir.ba-totals{border-left-color:#64748b!important;background:rgba(255,255,255,0.02);}
+.ba-ders{display:flex;align-items:center;gap:9px;width:130px;flex-shrink:0;}
+.ba-emoji{font-size:20px;line-height:1;}
+.ba-ad strong{font-size:12px;color:var(--white);display:block;line-height:1.2;}
+.ba-ad span{font-size:10px;color:var(--text-muted);}
+.ba-karsilastir{display:flex;align-items:center;flex:1;gap:8px;min-width:0;}
+.ba-skor{text-align:center;padding:7px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:9px;min-width:60px;flex-shrink:0;}
+.ba-skor-val{font-size:17px;font-weight:700;display:block;line-height:1;color:var(--text-muted);}
+.ba-skor-lbl{font-size:9px;color:var(--text-muted);white-space:nowrap;}
+.ba-ok-kap{flex:1;display:flex;align-items:center;min-width:20px;}
+.ba-ok-cizgi{flex:1;height:1px;background:rgba(255,255,255,0.08);}
+.ba-ok-ikon{font-size:10px;color:rgba(255,255,255,0.15);margin-left:-1px;flex-shrink:0;}
+.ba-delta{flex-shrink:0;display:flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:20px;min-width:68px;justify-content:center;}
+.ba-delta.up{background:rgba(52,211,153,0.14);color:#34d399;}
+.ba-delta.dn{background:rgba(248,113,113,0.14);color:#f87171;}
+.ba-delta.nt{background:rgba(148,163,184,0.1);color:#94a3b8;}
+@media(max-width:580px){
+  .ba-satir{flex-wrap:wrap;gap:8px;}
+  .ba-ders{width:auto;flex:1;}
+  .ba-karsilastir{width:100%;}
+  .ba-delta{margin-left:auto;}
+}
+
 /* Tooltip overlay */
 #db-tip{position:fixed;z-index:9999;pointer-events:none;display:none;min-width:170px;
   background:rgba(13,21,37,.97);border:1px solid rgba(255,255,255,.1);border-radius:12px;
@@ -3824,16 +3851,9 @@ function renderKarsilastirma(kapId,canvasId,sonuclar){
     return;
   }
 
-  // 2 deneme: Premium Dumbbell Chart
+  // 2 deneme: Before → After layout
   const s1=sonuclar[0], s2=sonuclar[1];
-  const dersler=[
-    {k:'turkce',   a:'Türkçe',        emoji:'📚', r:DERSLER.find(d=>d.k==='turkce').r},
-    {k:'matematik',a:'Matematik',      emoji:'📐', r:DERSLER.find(d=>d.k==='matematik').r},
-    {k:'fen',      a:'Fen Bilimleri',  emoji:'🔬', r:DERSLER.find(d=>d.k==='fen').r},
-    {k:'sosyal',   a:'Sosyal Bilgiler',emoji:'🌍', r:DERSLER.find(d=>d.k==='sosyal').r},
-    {k:'ingilizce',a:'İngilizce',      emoji:'🌐', r:DERSLER.find(d=>d.k==='ingilizce').r},
-    {k:'din',      a:'Din Kültürü',    emoji:'☪️', r:DERSLER.find(d=>d.k==='din').r},
-  ];
+  const dersler=DERSLER.map(dr=>({k:dr.k,a:dr.a,emoji:dr.emoji,r:dr.r}));
 
   const entries=dersler.map(dr=>({
     dr,
@@ -3882,130 +3902,28 @@ function renderKarsilastirma(kapId,canvasId,sonuclar){
       'nt','#e8a838')}
   </div>`;
 
-  // ── Dumbbell SVG ──────────────────────────────────────────
-  const LABEL_W=90, PAD_R=16, ROW_H=60, HEADER_H=28;
-  const svgId='db-svg-'+Date.now();
-  const tipEl=document.getElementById('db-tip');
-
-  function buildSVG(containerW){
-    const chartL=LABEL_W, chartR=containerW-PAD_R;
-    const range=chartR-chartL;
-    const totalH=HEADER_H+entries.length*ROW_H+ROW_H;
-
-    // axis pct ticks
-    const ticks=[0,.25,.5,.75,1].map(t=>({t,x:chartL+t*range,lbl:Math.round(t*maxNet*10)/10}));
-
-    let defs='<defs>',lines='',labels='',dots='',axisT='',totRow='';
-
-    // axis ticks header
-    ticks.forEach(tk=>{
-      axisT+=`<line x1="${tk.x}" y1="${HEADER_H}" x2="${tk.x}" y2="${totalH-ROW_H}" stroke="rgba(255,255,255,0.04)" stroke-dasharray="3 3"/>`;
-      axisT+=`<text x="${tk.x}" y="${HEADER_H-6}" text-anchor="middle" font-size="9" fill="#475569">${tk.lbl}</text>`;
-    });
-
-    entries.forEach((e,i)=>{
-      const gid='lg'+i, fid='fd'+i;
-      const y0=HEADER_H+i*ROW_H;
-      const cy=y0+ROW_H/2;
-      const x1=chartL+(e.n1/maxNet)*range;
-      const x2=chartL+(e.n2/maxNet)*range;
-      const isUp=e.delta>0.01, isDown=e.delta<-0.01;
-      const lx=Math.min(x1,x2), rx=Math.max(x1,x2);
-      const c1=isUp?'#6366f1':'#ef4444', c2=isUp?'#10b981':isDown?'#6366f1':'#64748b';
-      const dotC2=isUp?'#10b981':isDown?'#ef4444':'#64748b';
-
-      defs+=`<linearGradient id="${gid}" x1="${lx}" y1="${cy}" x2="${rx}" y2="${cy}" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stop-color="${c1}"/>
-        <stop offset="100%" stop-color="${c2}"/>
-      </linearGradient>
-      <filter id="${fid}" x="-30%" y="-30%" width="160%" height="160%">
-        <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="${dotC2}" flood-opacity="0.45"/>
-      </filter>`;
-
-      // hover row
-      lines+=`<rect x="0" y="${y0}" width="${containerW}" height="${ROW_H}" fill="transparent"
-        class="db-hov-row" data-idx="${i}"
-        onmouseenter="dbTipShow(event,${i})" onmouseleave="dbTipHide()"/>`;
-      // track
-      lines+=`<line x1="${chartL}" y1="${cy}" x2="${chartR}" y2="${cy}" stroke="rgba(255,255,255,0.04)" stroke-width="1.5"/>`;
-      // connecting line
-      if(rx-lx>2){
-        lines+=`<line x1="${lx}" y1="${cy}" x2="${rx}" y2="${cy}" stroke="url(#${gid})" stroke-width="2.5" stroke-linecap="round"/>`;
-      }
-      // delta label
-      if(rx-lx>14){
-        const dTxt=(e.delta>0?'▲ +':'▼ ')+e.delta.toFixed(1);
-        lines+=`<text x="${(x1+x2)/2}" y="${cy-10}" text-anchor="middle" font-size="10" font-weight="700" fill="${dotC2}">${dTxt}</text>`;
-      }
-      // dot1
-      dots+=`<circle cx="${x1}" cy="${cy}" r="7" fill="#0f1e35" stroke="#6366f1" stroke-width="2.5"/>
-        <circle cx="${x1}" cy="${cy}" r="3" fill="#6366f1" opacity="0.7"/>`;
-      // dot1 net label
-      dots+=`<text x="${x1}" y="${cy+18}" text-anchor="middle" font-size="9" fill="#64748b">${e.n1.toFixed(1)}</text>`;
-      // dot2
-      dots+=`<circle cx="${x2}" cy="${cy}" r="7" fill="#0f1e35" stroke="${dotC2}" stroke-width="2.5" filter="url(#${fid})"/>
-        <circle cx="${x2}" cy="${cy}" r="3" fill="${dotC2}" opacity="0.75"/>`;
-      dots+=`<text x="${x2}" y="${cy+18}" text-anchor="middle" font-size="9" font-weight="700" fill="${dotC2}">${e.n2.toFixed(1)}</text>`;
-
-      // row label
-      labels+=`<text x="${LABEL_W-10}" y="${cy+4}" text-anchor="end" font-size="11" font-weight="700" fill="#cbd5e1">${e.dr.emoji} ${e.dr.a.split(' ')[0]}</text>`;
-    });
-
-    // Totals row
-    const ty=HEADER_H+entries.length*ROW_H+ROW_H/2;
-    const tx1=chartL+(topN1/maxNet)*range, tx2=chartL+(topN2/maxNet)*range;
-    const totC=topDelta>=0?'#10b981':'#ef4444';
-    totRow=`<rect x="0" y="${HEADER_H+entries.length*ROW_H}" width="${containerW}" height="${ROW_H}" fill="rgba(255,255,255,0.015)"/>
-      <line x1="0" y1="${HEADER_H+entries.length*ROW_H}" x2="${containerW}" y2="${HEADER_H+entries.length*ROW_H}" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-      <text x="${LABEL_W-10}" y="${ty+4}" text-anchor="end" font-size="11" font-weight="700" fill="#94a3b8">Toplam</text>
-      <line x1="${Math.min(tx1,tx2)}" y1="${ty}" x2="${Math.max(tx1,tx2)}" y2="${ty}" stroke="${totC}" stroke-width="2" stroke-dasharray="4 2"/>
-      <circle cx="${tx1}" cy="${ty}" r="6" fill="#0f1e35" stroke="#6366f1" stroke-width="2"/>
-      <circle cx="${tx2}" cy="${ty}" r="6" fill="#0f1e35" stroke="${totC}" stroke-width="2"/>
-      <text x="${(tx1+tx2)/2}" y="${ty-10}" text-anchor="middle" font-size="10" font-weight="700" fill="${totC}">${topDelta>=0?'+':''}${topDelta.toFixed(1)} net</text>`;
-
-    defs+='</defs>';
-    return `<svg id="${svgId}" width="100%" height="${totalH}" viewBox="0 0 ${containerW} ${totalH}" style="overflow:visible;display:block">
-      ${defs}${axisT}${lines}${labels}${dots}${totRow}
-      <!-- legend -->
-      <circle cx="${containerW-PAD_R-5}" cy="14" r="4" fill="#6366f1"/>
-      <text x="${containerW-PAD_R-12}" y="18" text-anchor="end" font-size="9" fill="#64748b">${s1.deneme_adi}</text>
-      <circle cx="${containerW-PAD_R-5}" cy="28" r="4" fill="#10b981"/>
-      <text x="${containerW-PAD_R-12}" y="32" text-anchor="end" font-size="9" fill="#64748b">${s2.deneme_adi}</text>
-    </svg>`;
-  }
-
-  // ── Insight paneli ────────────────────────────────────────
+  // ── Before → After satır listesi ─────────────────────────
   function insightHTML(){
     const rows=[];
     if(topDelta>0){
-      rows.push({t:'suc',ic:'fas fa-check-circle',icC:'#34d399',
-        bas:'Genel gelişim var!',
+      rows.push({t:'suc',ic:'fas fa-check-circle',icC:'#34d399',bas:'Genel gelişim var!',
         txt:`${s1.deneme_adi} → ${s2.deneme_adi} arasında toplam ${topDelta.toFixed(1)} net artışı sağlandı.`});
     } else if(topDelta<0){
-      rows.push({t:'dan',ic:'fas fa-exclamation-circle',icC:'#f87171',
-        bas:'Genel performans düştü',
+      rows.push({t:'dan',ic:'fas fa-exclamation-circle',icC:'#f87171',bas:'Genel performans düştü',
         txt:`Toplam nette ${topDelta.toFixed(1)} düşüş tespit edildi. Odaklanma artırılmalı.`});
     }
-    if(best){
-      rows.push({t:'suc',ic:'fas fa-star',icC:'#34d399',
-        bas:`En iyi gelişim: ${best.dr.emoji} ${best.dr.a}`,
-        txt:`+${best.delta.toFixed(1)} net artış (%${best.n1?((best.delta/Math.abs(best.n1))*100).toFixed(0):0} artış). Güçlü alan.`});
-    }
-    if(worst){
-      rows.push({t:'dan',ic:'fas fa-exclamation-triangle',icC:'#f87171',
-        bas:`Dikkat: ${worst.dr.emoji} ${worst.dr.a}`,
-        txt:`${worst.delta.toFixed(1)} net düşüş. Bu derse özel çalışma planı yapılması önerilir.`});
-    }
-    if(impr.length===entries.length){
-      rows.push({t:'suc',ic:'fas fa-trophy',icC:'#fbbf24',
-        bas:'Tüm derslerde artış!',txt:'Tüm derslerde olumlu gelişim sağlandı. Mükemmel tutarlılık.'});
-    } else if(decl.length===entries.length){
-      rows.push({t:'dan',ic:'fas fa-battery-empty',icC:'#f87171',
-        bas:'Tüm dersler düştü',txt:'Genel bir yorgunluk ya da motivasyon sorunu olabilir. Çalışma planı gözden geçirilmeli.'});
-    }
-    if(!rows.length){
+    if(best) rows.push({t:'suc',ic:'fas fa-star',icC:'#34d399',
+      bas:`En iyi gelişim: ${best.dr.emoji} ${best.dr.a}`,
+      txt:`+${best.delta.toFixed(1)} net artış (%${best.n1?((best.delta/Math.abs(best.n1))*100).toFixed(0):0}). Güçlü alan.`});
+    if(worst) rows.push({t:'dan',ic:'fas fa-exclamation-triangle',icC:'#f87171',
+      bas:`Dikkat: ${worst.dr.emoji} ${worst.dr.a}`,
+      txt:`${worst.delta.toFixed(1)} net düşüş. Bu derse özel çalışma planı önerilir.`});
+    if(impr.length===entries.length)
+      rows.push({t:'suc',ic:'fas fa-trophy',icC:'#fbbf24',bas:'Tüm derslerde artış!',txt:'Tüm derslerde olumlu gelişim. Mükemmel tutarlılık.'});
+    else if(decl.length===entries.length)
+      rows.push({t:'dan',ic:'fas fa-battery-empty',icC:'#f87171',bas:'Tüm dersler düştü',txt:'Genel bir odaklanma sorunu olabilir. Çalışma planı gözden geçirilmeli.'});
+    if(!rows.length)
       rows.push({t:'inf',ic:'fas fa-info-circle',icC:'#818cf8',bas:'Sabit performans',txt:'İki deneme arasında belirgin bir değişim gözlemlenmedi.'});
-    }
     return rows.slice(0,4).map(r=>`
       <div class="db-insight ${r.t}">
         <div class="db-insight-ico" style="background:${r.icC}18;color:${r.icC}"><i class="${r.ic}"></i></div>
@@ -4013,43 +3931,66 @@ function renderKarsilastirma(kapId,canvasId,sonuclar){
       </div>`).join('');
   }
 
-  // ── Render ────────────────────────────────────────────────
-  document.getElementById(kapId).innerHTML=kpiGrid+`
-    <div class="kart db-karti" style="margin-bottom:16px">
-      <div class="k-baslik" style="margin-bottom:12px">
-        <div class="k-baslik-sol"><i class="fas fa-circle-notch"></i> Net Puan Karşılaştırması</div>
-        <div style="display:flex;gap:14px;align-items:center;font-size:11px;color:var(--text-muted)">
-          <div style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#6366f1;display:inline-block"></span>${s1.deneme_adi}</div>
-          <div style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block"></span>${s2.deneme_adi}</div>
+  // Satır oluştur
+  function baRow(e){
+    const isUp=e.delta>0.01, isDown=e.delta<-0.01;
+    const tC=isUp?'#34d399':isDown?'#f87171':'#94a3b8';
+    const dCls=isUp?'up':isDown?'dn':'nt';
+    const dIco=isUp?'▲':isDown?'▼':'—';
+    const adParts=e.dr.a.split(' ');
+    return `<div class="ba-satir" style="border-left-color:${e.dr.r}">
+      <div class="ba-ders">
+        <span class="ba-emoji">${e.dr.emoji}</span>
+        <div class="ba-ad">
+          <strong>${adParts[0]}</strong>
+          <span>${adParts.slice(1).join(' ')}</span>
         </div>
       </div>
-      <div id="db-svg-kap" style="width:100%"></div>
+      <div class="ba-karsilastir">
+        <div class="ba-skor">
+          <span class="ba-skor-val">${e.n1.toFixed(1)}</span>
+          <span class="ba-skor-lbl">${s1.deneme_adi}</span>
+        </div>
+        <div class="ba-ok-kap"><div class="ba-ok-cizgi"></div><i class="fas fa-chevron-right ba-ok-ikon"></i></div>
+        <div class="ba-skor" style="border-color:${tC}33">
+          <span class="ba-skor-val" style="color:${tC}">${e.n2.toFixed(1)}</span>
+          <span class="ba-skor-lbl">${s2.deneme_adi}</span>
+        </div>
+      </div>
+      <div class="ba-delta ${dCls}">${dIco} ${e.delta>0?'+':''}${e.delta.toFixed(1)}</div>
+    </div>`;
+  }
+
+  const totDCls=topDelta>=0?'up':'dn';
+  const totIco=topDelta>=0?'▲':'▼';
+  const totC=topDelta>=0?'#34d399':'#f87171';
+  const totalsRow=`<div class="ba-satir ba-totals">
+    <div class="ba-ders"><span class="ba-emoji">📊</span><div class="ba-ad"><strong>Toplam</strong><span>Net</span></div></div>
+    <div class="ba-karsilastir">
+      <div class="ba-skor"><span class="ba-skor-val">${topN1.toFixed(1)}</span><span class="ba-skor-lbl">${s1.deneme_adi}</span></div>
+      <div class="ba-ok-kap"><div class="ba-ok-cizgi"></div><i class="fas fa-chevron-right ba-ok-ikon"></i></div>
+      <div class="ba-skor" style="border-color:${totC}33"><span class="ba-skor-val" style="color:${totC}">${topN2.toFixed(1)}</span><span class="ba-skor-lbl">${s2.deneme_adi}</span></div>
+    </div>
+    <div class="ba-delta ${totDCls}">${totIco} ${topDelta>=0?'+':''}${topDelta.toFixed(1)}</div>
+  </div>`;
+
+  // ── Render ────────────────────────────────────────────────
+  document.getElementById(kapId).innerHTML=kpiGrid+`
+    <div class="kart" style="margin-bottom:16px">
+      <div class="k-baslik" style="margin-bottom:14px">
+        <div class="k-baslik-sol"><i class="fas fa-exchange-alt"></i> Ders Bazlı Karşılaştırma</div>
+        <div style="display:flex;gap:14px;align-items:center;font-size:11px;color:var(--text-muted)">
+          <span style="color:#94a3b8">${s1.deneme_adi}</span>
+          <i class="fas fa-long-arrow-alt-right" style="color:#475569"></i>
+          <span style="color:var(--white)">${s2.deneme_adi}</span>
+        </div>
+      </div>
+      <div class="ba-tablo">${entries.map(baRow).join('')}${totalsRow}</div>
     </div>
     <div class="kart" style="margin-bottom:16px">
       <div class="k-baslik"><div class="k-baslik-sol"><i class="fas fa-lightbulb"></i> Performans Analizi</div></div>
       <div class="db-insight-list">${insightHTML()}</div>
     </div>`;
-
-  // SVG oluştur (containerWidth bilindikten sonra)
-  requestAnimationFrame(()=>{
-    const kap=document.getElementById('db-svg-kap');
-    if(!kap) return;
-    const w=kap.offsetWidth||600;
-    kap.innerHTML=buildSVG(w);
-
-    // resize desteği
-    if(window._dbRO) window._dbRO.disconnect();
-    window._dbRO=new ResizeObserver(([entry])=>{
-      const nw=entry.contentRect.width;
-      if(nw>50) kap.innerHTML=buildSVG(nw);
-    });
-    window._dbRO.observe(kap);
-
-    // entry listesi tooltip için sakla
-    window._dbEntries=entries;
-    window._dbS1Label=s1.deneme_adi;
-    window._dbS2Label=s2.deneme_adi;
-  });
 }
 
 // ---- GELİŞİM ----
