@@ -490,8 +490,7 @@ input[type="file"]:hover{border-color:var(--accent);}
   /* Badge'ler küçük */
   .badge{font-size:10px;padding:2px 7px;}
   /* Deneme kartları */
-  .d-kart{padding:14px 12px;flex-wrap:wrap;gap:10px;}
-  .d-kart > div:last-child{gap:8px;}
+  .d-kart{padding:14px 12px;}
   /* Öğrenci kart ızgarası - tek kolon */
   .inc-ogr-grid{grid-template-columns:1fr;}
   /* Sıradaki deneme kartı */
@@ -3469,10 +3468,19 @@ function ogrDenemeleriYukle(){
   if(!denemeler.length){kap.innerHTML=sdHTML+'<div class="bos"><i class="fas fa-inbox"></i><p>Henüz deneme sonucunuz bulunmuyor.</p></div>';return;}
   kap.innerHTML=sdHTML+denemeler.map(d=>`
     <div class="d-kart" onclick="detayGoster(${d.id})">
-      <div><div style="font-weight:600;margin-bottom:4px">${d.deneme_adi}</div><div style="font-size:12px;color:var(--text-muted)">${fTarih(d.tarih)}</div></div>
-      <div style="display:flex;align-items:center;gap:14px">
-        <div style="text-align:right"><div style="font-size:20px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace">${(d.puan||0).toFixed(2)}</div><div style="font-size:11px;color:var(--text-muted)">Puan</div></div>
-        <div style="text-align:right"><span class="s-badge">#${d.kurum_siralama||0}</span><div style="font-size:11px;color:var(--text-muted);margin-top:2px">Kurum</div></div>
+      <div style="flex:1;min-width:0;overflow:hidden">
+        <div style="font-weight:600;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.deneme_adi}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${fTarih(d.tarih)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;flex-shrink:0;margin-left:10px">
+        <div style="text-align:right">
+          <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">PUAN</div>
+          <div style="font-size:18px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace">${(d.puan||0).toFixed(2)}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">SIRALAMA<br><span style="font-size:9px;text-transform:none;letter-spacing:0">(Kurum)</span></div>
+          <span class="s-badge">#${d.kurum_siralama||0}</span>
+        </div>
         <i class="fas fa-chevron-right" style="color:var(--text-muted)"></i>
       </div>
     </div>`).join('');
