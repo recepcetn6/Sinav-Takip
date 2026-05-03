@@ -789,7 +789,7 @@ input[type="file"]:hover{border-color:var(--accent);}
     </div>
     <div class="h-sag">
       <div class="k-bilgi">
-        <span id="h-ogr-adi" style="display:none;font-weight:600;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:clamp(70px,22vw,160px);font-size:13px;"></span>
+        <span id="h-ogr-adi" style="display:none;font-weight:600;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:clamp(130px,55vw,260px);font-size:13px;"></span>
         <div class="avatar"><i class="fas fa-user"></i></div>
         <span id="h-kullanici"></span>
         <span id="h-rol-et"></span>
@@ -2393,6 +2393,8 @@ function cikisYap(){
   document.getElementById('g-sifre').value='';
   document.getElementById('g-hata').style.display='none';
   var rolEt=document.getElementById('h-rol-et'); if(rolEt) rolEt.innerHTML='';
+  var ogrAdiElC=document.getElementById('h-ogr-adi'); if(ogrAdiElC) ogrAdiElC.style.display='none';
+  var hKullaniciC=document.getElementById('h-kullanici'); if(hKullaniciC) hKullaniciC.style.display='';
   // Tüm grafikleri güvenli şekilde yok et
   Object.keys(GRF).forEach(k=>{
     try{ if(GRF[k]) GRF[k].destroy(); }catch(e){}
@@ -3654,10 +3656,17 @@ function ogrenciBastir(){
   var rolEt=document.getElementById('h-rol-et'); if(rolEt) rolEt.innerHTML='';
   // Öğrenci adını header'da göster
   var ogrAdiEl=document.getElementById('h-ogr-adi');
+  var hKullanici=document.getElementById('h-kullanici');
   if(ogrAdiEl){
     var bilgi=hedefOgrenciBilgi();
-    if(bilgi&&bilgi.ad){ogrAdiEl.textContent=bilgi.ad;ogrAdiEl.style.display='';}
-    else{ogrAdiEl.style.display='none';}
+    if(bilgi&&bilgi.ad){
+      ogrAdiEl.textContent=bilgi.ad;
+      ogrAdiEl.style.display='';
+      if(hKullanici) hKullanici.style.display='none';
+    } else {
+      ogrAdiEl.style.display='none';
+      if(hKullanici) hKullanici.style.display='';
+    }
   }
   // Okul adını header'da göster
   var okulEtKap = document.getElementById('h-okul-et');
@@ -5104,6 +5113,8 @@ function ogretmenBastir(){
   var yetkili = yetkiliMi();
   var ogrAdiEl=document.getElementById('h-ogr-adi');
   if(ogrAdiEl) ogrAdiEl.style.display='none';
+  var hKullanici=document.getElementById('h-kullanici');
+  if(hKullanici) hKullanici.style.display='';
   // Rol etiketi header'da gösterilsin (opsiyonel)
   var rolEt = yetkili
     ? '<span class="rol-badge rol-yetkili"><i class="fas fa-user-shield"></i> Yetkili</span>'
