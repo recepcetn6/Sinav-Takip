@@ -588,6 +588,11 @@ input[type="file"]:hover{border-color:var(--accent);}
   .k-baslik > div:last-child{flex-wrap:wrap;gap:6px;}
 }
 
+/* iOS zoom fix: 16px altı input font-size'ı iOS'un otomatik zoom yapmasına neden olur */
+@media(max-width:768px){
+  input, select, textarea{font-size:16px!important;}
+}
+
 /* ── GELİŞİM PREMIUM DASHBOARD ── */
 .gel-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px;}
 .gel-header-sol h2{font-size:20px;font-weight:700;color:var(--white);margin-bottom:3px;}
@@ -2247,6 +2252,8 @@ function girisYap(){
   document.getElementById('ana-ekran').style.display='flex';
   document.getElementById('h-kullanici').textContent = ku;
   document.getElementById('g-hata').style.display='none';
+  // iOS zoom'u sıfırla: login formu odak zoom'unu temizle
+  try{var mv=document.querySelector('meta[name="viewport"]');if(mv){mv.setAttribute('content','width=device-width,initial-scale=1,maximum-scale=1');setTimeout(function(){mv.setAttribute('content','width=device-width,initial-scale=1');},300);}}catch(e){}
 
   if (bulunan.rol === 'ogretmen' || bulunan.rol === 'yetkili') ogretmenBastir();
   else ogrenciBastir();
