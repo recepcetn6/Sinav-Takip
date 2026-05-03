@@ -3681,6 +3681,7 @@ function ogrenciBastir(){
     <button class="nav-btn" data-s="takvim" onclick="sayfaGoster('takvim');takvimYukle()"><i class="fas fa-calendar-alt"></i> Takvim</button>
     <button class="nav-btn" data-s="karsilastir" onclick="sayfaGoster('karsilastir');kSecimYukle()"><i class="fas fa-balance-scale"></i> Karşılaştır</button>
     <button class="nav-btn" data-s="profil" onclick="sayfaGoster('profil');profilYukle()"><i class="fas fa-user-cog"></i> Şifrem</button>`;
+  sayfaGoster('sonuclarim');
   ogrDenemeleriYukle();
 }
 
@@ -4479,6 +4480,7 @@ function adminBastir(){
     '<button class="nav-btn aktif" data-s="admin-okullar" onclick="sayfaGoster(\'admin-okullar\');adminPanelYukle()"><i class="fas fa-school"></i> Okul Yönetimi</button>' +
     '<button class="nav-btn" data-s="admin-ayarlar" onclick="sayfaGoster(\'admin-ayarlar\');adminAyarlarYukle()"><i class="fas fa-user-shield"></i> Admin Profil</button>';
   document.getElementById('nav-bar').innerHTML = menu;
+  sayfaGoster('admin-okullar');
   adminPanelYukle();
 }
 
@@ -5150,6 +5152,7 @@ function ogretmenBastir(){
   }
   document.getElementById('nav-bar').innerHTML = menu;
   document.getElementById('y-tarih').value=new Date().toISOString().split('T')[0];
+  sayfaGoster('panel');
   panelYukle();
 }
 
