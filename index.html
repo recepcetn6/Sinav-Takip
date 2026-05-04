@@ -4107,10 +4107,19 @@ function gelisimYukle(){
     dGrid.parentNode.insertBefore(dp, dGrid.nextSibling);
   }
 
-  // Tüm dersler için sınıf ortalamalarını önceden hesapla
+  // Öğrencinin sınıf/şube bilgisi
+  const ogrSinif=katilanDenemeler.length?(sonucMap[katilanDenemeler[0].id]?.sinif||null):null;
+  const ogrSube=katilanDenemeler.length?(sonucMap[katilanDenemeler[0].id]?.sube||null):null;
+
+  // Tüm dersler için sınıf ve okul ortalamalarını önceden hesapla
   const sinifOrtMap={};
+  const okulOrtMap={};
   DERSLER.forEach(dr=>{
     sinifOrtMap[dr.k]=katilanDenemeler.map(d=>{
+      const kats=db.sonuclar.filter(r=>r.deneme_id===d.id&&(!ogrSinif||r.sinif===ogrSinif)&&(!ogrSube||r.sube===ogrSube));
+      return kats.length?+(kats.reduce((s,r)=>s+(r[dr.k+'_net']||0),0)/kats.length).toFixed(1):0;
+    });
+    okulOrtMap[dr.k]=katilanDenemeler.map(d=>{
       const kats=db.sonuclar.filter(r=>r.deneme_id===d.id);
       return kats.length?+(kats.reduce((s,r)=>s+(r[dr.k+'_net']||0),0)/kats.length).toFixed(1):0;
     });
@@ -4120,6 +4129,7 @@ function gelisimYukle(){
     const cid='gsp-'+dr.k;
     const netler=katilanDenemeler.map(d=>sonucMap[d.id][dr.k+'_net']??0);
     const sinifOrt=sinifOrtMap[dr.k];
+    const okulOrt=okulOrtMap[dr.k];
     const sonNet=netler.length?netler[netler.length-1]:null;
     const oncekiNet=netler.length>1?netler[netler.length-2]:null;
     const sonOrt=sinifOrt.length?sinifOrt[sinifOrt.length-1]:0;
@@ -4173,6 +4183,7 @@ function gelisimYukle(){
       '<div class="gel-bm-row">'+
         '<div class="gel-bm-item"><div class="gel-bm-dot" style="background:'+dr.r+'"></div>Sizin</div>'+
         '<div class="gel-bm-item"><div class="gel-bm-dot" style="background:rgba(143,164,188,0.5)"></div>Sınıf Ort.</div>'+
+        '<div class="gel-bm-item"><div class="gel-bm-dot" style="background:rgba(143,164,188,0.2)"></div>Okul Ort.</div>'+
         '<div class="gel-bm-detay"><i class="fas fa-expand-alt"></i> Detay</div>'+
       '</div>';
     dGrid.appendChild(div);
@@ -4191,9 +4202,12 @@ function gelisimYukle(){
               gr.addColorStop(0,dr.r+'55');gr.addColorStop(1,dr.r+'00');return gr;
             },
             fill:true,tension:0.45,borderWidth:2,pointRadius:2,pointHoverRadius:4,spanGaps:false},
-          {label:'Ort',data:sinifOrt,borderColor:'rgba(143,164,188,0.35)',
+          {label:'Sınıf Ort',data:sinifOrt,borderColor:'rgba(143,164,188,0.35)',
             backgroundColor:'transparent',fill:false,tension:0.4,borderWidth:1.5,
-            pointRadius:0,borderDash:[4,4],spanGaps:false}
+            pointRadius:0,borderDash:[4,4],spanGaps:false},
+          {label:'Okul Ort',data:okulOrt,borderColor:'rgba(143,164,188,0.15)',
+            backgroundColor:'transparent',fill:false,tension:0.4,borderWidth:1,
+            pointRadius:0,borderDash:[3,6],spanGaps:false}
         ]
       },
       options:{
@@ -4222,6 +4236,10 @@ function gelisimYukle(){
   // ── Ana puan grafiği — gradient area + sınıf ort. çizgisi ──
   const puanlar=tumDenemeler.map(d=>{ const s=sonucMap[d.id]; return s!=null?(s.puan||0):null; });
   const sinifPuanOrt=tumDenemeler.map(d=>{
+    const kats=db.sonuclar.filter(r=>r.deneme_id===d.id&&(!ogrSinif||r.sinif===ogrSinif)&&(!ogrSube||r.sube===ogrSube));
+    return kats.length?+(kats.reduce((s,r)=>s+(r.puan||0),0)/kats.length).toFixed(0):null;
+  });
+  const okulPuanOrt=tumDenemeler.map(d=>{
     const kats=db.sonuclar.filter(r=>r.deneme_id===d.id);
     return kats.length?+(kats.reduce((s,r)=>s+(r.puan||0),0)/kats.length).toFixed(0):null;
   });
@@ -4248,16 +4266,29 @@ function gelisimYukle(){
         borderColor:'rgba(148,163,184,0.45)',borderDash:[5,4],
         fill:false,tension:0.4,borderWidth:1.5,
         pointRadius:3,pointHoverRadius:5,
-        pointBackgroundColor:'rgba(148,163,184,0.45)',spanGaps:false}
+        pointBackgroundColor:'rgba(148,163,184,0.45)',spanGaps:false},
+      {label:'Okul Ort.',data:okulPuanOrt,
+        borderColor:'rgba(148,163,184,0.18)',borderDash:[3,6],
+        fill:false,tension:0.4,borderWidth:1,
+        pointRadius:0,pointHoverRadius:3,
+        pointBackgroundColor:'rgba(148,163,184,0.18)',spanGaps:false}
     ]},
     options:{...gOpts(),plugins:{
       legend:{labels:{color:'#8fa4bc',font:{family:'Sora',size:11}}},
       tooltip:{callbacks:{
         label:c=>c.dataset.label+': '+c.parsed.y,
         afterLabel:c=>{
-          if(c.datasetIndex===0&&sinifPuanOrt[c.dataIndex]!=null){
-            const fark=c.parsed.y-(sinifPuanOrt[c.dataIndex]||0);
-            return 'Sınıf ort. farkı: '+(fark>=0?'+':'')+fark.toFixed(0);
+          if(c.datasetIndex===0){
+            const parts=[];
+            if(sinifPuanOrt[c.dataIndex]!=null){
+              const fark=c.parsed.y-(sinifPuanOrt[c.dataIndex]||0);
+              parts.push('Sınıf ort. farkı: '+(fark>=0?'+':'')+fark.toFixed(0));
+            }
+            if(okulPuanOrt[c.dataIndex]!=null){
+              const fark2=c.parsed.y-(okulPuanOrt[c.dataIndex]||0);
+              parts.push('Okul ort. farkı: '+(fark2>=0?'+':'')+fark2.toFixed(0));
+            }
+            return parts;
           }
           return '';
         }
@@ -4326,7 +4357,13 @@ function gelisimDersAc(k){
   if(!katilanDenemeler.length) return;
 
   const netler=katilanDenemeler.map(d=>sonucMap[d.id][k+'_net']??0);
+  const dOgrSinif=katilanDenemeler.length?(sonucMap[katilanDenemeler[0].id]?.sinif||null):null;
+  const dOgrSube=katilanDenemeler.length?(sonucMap[katilanDenemeler[0].id]?.sube||null):null;
   const sinifOrt=katilanDenemeler.map(d=>{
+    const kats=db.sonuclar.filter(r=>r.deneme_id===d.id&&(!dOgrSinif||r.sinif===dOgrSinif)&&(!dOgrSube||r.sube===dOgrSube));
+    return kats.length?+(kats.reduce((s,r)=>s+(r[k+'_net']||0),0)/kats.length).toFixed(1):0;
+  });
+  const okulOrtD=katilanDenemeler.map(d=>{
     const kats=db.sonuclar.filter(r=>r.deneme_id===d.id);
     return kats.length?+(kats.reduce((s,r)=>s+(r[k+'_net']||0),0)/kats.length).toFixed(1):0;
   });
@@ -4361,6 +4398,7 @@ function gelisimDersAc(k){
     <div class="gel-detay-legend">
       <div class="gel-detay-lej"><div class="gel-detay-lej-dot" style="background:${dr.r}"></div>Sizin Netiniz</div>
       <div class="gel-detay-lej"><div class="gel-detay-lej-dot" style="background:rgba(148,163,184,0.5);height:1px;margin-top:1px"></div>Sınıf Ortalaması</div>
+      <div class="gel-detay-lej"><div class="gel-detay-lej-dot" style="background:rgba(148,163,184,0.2);height:1px;margin-top:1px"></div>Okul Ortalaması</div>
       <div class="gel-detay-lej"><div class="gel-detay-lej-dot" style="background:#34d399;border-radius:50%;width:8px;height:8px"></div>Tepe Nokta</div>
       <div class="gel-detay-lej"><div class="gel-detay-lej-dot" style="background:#f87171;border-radius:50%;width:8px;height:8px"></div>Düşük Nokta</div>
     </div>
@@ -4396,7 +4434,12 @@ function gelisimDersAc(k){
         borderColor:'rgba(148,163,184,0.45)',borderDash:[5,4],
         fill:false,tension:0.4,borderWidth:1.5,
         pointRadius:3,pointHoverRadius:5,
-        pointBackgroundColor:'rgba(148,163,184,0.5)',spanGaps:false}
+        pointBackgroundColor:'rgba(148,163,184,0.5)',spanGaps:false},
+      {label:'Okul Ort.',data:okulOrtD,
+        borderColor:'rgba(148,163,184,0.18)',borderDash:[3,6],
+        fill:false,tension:0.4,borderWidth:1,
+        pointRadius:0,pointHoverRadius:3,
+        pointBackgroundColor:'rgba(148,163,184,0.18)',spanGaps:false}
     ]},
     options:{
       responsive:true,maintainAspectRatio:false,
@@ -4412,6 +4455,8 @@ function gelisimDersAc(k){
               const v=netler[d];
               const parts=[];
               if(ort) parts.push('Sınıf ort. farkı: '+(fark>=0?'+':'')+fark);
+              const oku=okulOrtD[c.dataIndex]||0;
+              if(oku){ const f2=+(c.parsed.y-oku).toFixed(1); parts.push('Okul ort. farkı: '+(f2>=0?'+':'')+f2); }
               if(v===maxNet) parts.push('🏆 En yüksek puan');
               if(v===minNet) parts.push('⚠️ En düşük puan');
               return parts;
