@@ -3919,6 +3919,8 @@ function renderKarsilastirma(kapId,canvasId,sonuclar){
   if(sonuclar.length>2){
     const dK=['turkce','sosyal','din','ingilizce','matematik','fen'];
     const dA=['Türkçe','Sosyal','Din','İngilizce','Matematik','Fen'];
+    const dEmoji=['📚','🌍','🕌','🌐','📐','🔬'];
+    const dRenk=['#4da8e8','#06b6d4','#f97316','#ec4899','#a855f7','#22c55e'];
     const renkler=['#4da8e8','#27c08a','#e8a838','#a855f7','#e85d4a','#06b6d4','#f97316','#14b8a6'];
 
     const puanlar=sonuclar.map(s=>s.puan||0);
@@ -3928,6 +3930,38 @@ function renderKarsilastirma(kapId,canvasId,sonuclar){
     const ortPuan=(puanlar.reduce((a,b)=>a+b,0)/puanlar.length).toFixed(0);
     const enIyiIdx=puanlar.indexOf(enYuksekPuan);
     const enIyiAd=sonuclar[enIyiIdx]?.deneme_adi||'-';
+
+    // Her ders için gelişim analizi
+    const dersGelisim=dK.map((dk,i)=>{
+      const netler=sonuclar.map(s=>+(s[dk+'_net']||0));
+      const ilk=netler[0], son=netler[netler.length-1];
+      const fark=+(son-ilk).toFixed(2);
+      const ort=+(netler.reduce((a,b)=>a+b,0)/netler.length).toFixed(2);
+      return {dk,ad:dA[i],emoji:dEmoji[i],renk:dRenk[i],netler,ilk,son,fark,ort};
+    });
+
+    // Puan trendi
+    const puanFark=puanlar[puanlar.length-1]-puanlar[0];
+    const trendMetin=puanFark>5?'📈 Sürekli artış trendi var — harika ilerleme!':
+                     puanFark<-5?'📉 Genel puan düşüşü gözlemleniyor — odaklanma gerekli.':
+                     '➡️ Puan trendi stabil seyrediyor.';
+
+    const enCokGelisen=dersGelisim.slice().sort((a,b)=>b.fark-a.fark)[0];
+    const enCokDusen=dersGelisim.slice().sort((a,b)=>a.fark-b.fark)[0];
+    const enGuclu=dersGelisim.slice().sort((a,b)=>b.ort-a.ort)[0];
+    const enZayif=dersGelisim.slice().sort((a,b)=>a.ort-b.ort)[0];
+    const hepsiGelisti=dersGelisim.every(d=>d.fark>0);
+    const hepsiDustu=dersGelisim.every(d=>d.fark<0);
+
+    const yorumlar=[
+      {ikon:'fas fa-chart-line',renk:'#60a5fa',metin:trendMetin},
+      {ikon:'fas fa-arrow-trend-up',renk:'#22c55e',metin:`${enCokGelisen.emoji} <b style="color:#f0f4ff">${enCokGelisen.ad}</b> en çok gelişen ders: ilk denemeden bu yana <b style="color:#22c55e">+${enCokGelisen.fark}</b> net artışı.`},
+      enCokDusen.fark<0?{ikon:'fas fa-arrow-trend-down',renk:'#f87171',metin:`${enCokDusen.emoji} <b style="color:#f0f4ff">${enCokDusen.ad}</b> en çok gerileyen ders: <b style="color:#f87171">${enCokDusen.fark}</b> net düşüş. Ekstra çalışma önerilir.`}:null,
+      {ikon:'fas fa-star',renk:'#f59e0b',metin:`${enGuclu.emoji} <b style="color:#f0f4ff">${enGuclu.ad}</b> en güçlü alan (ortalama <b style="color:#f59e0b">${enGuclu.ort}</b> net). Bu avantajı koruyun.`},
+      {ikon:'fas fa-bullseye',renk:'#e879f9',metin:`${enZayif.emoji} <b style="color:#f0f4ff">${enZayif.ad}</b> odaklanılması gereken alan (ortalama <b style="color:#e879f9">${enZayif.ort}</b> net). Burada yapılacak küçük gelişmeler büyük puan farkı yaratır.`},
+      hepsiGelisti?{ikon:'fas fa-fire',renk:'#f97316',metin:'🎉 Tüm dersler gelişim göstermiş! Mükemmel bir performans süreci.'}:null,
+      hepsiDustu?{ikon:'fas fa-triangle-exclamation',renk:'#fbbf24',metin:'⚠️ Tüm derslerde gerileme var. Çalışma düzenini ve yöntemini yeniden gözden geçirmek faydalı olabilir.'}:null,
+    ].filter(Boolean);
 
     const chipStyle='display:inline-flex;align-items:center;gap:6px;background:#ffffff0d;border:1px solid #ffffff18;border-radius:20px;padding:5px 12px;font-size:12px;color:#cbd5e1';
 
@@ -3946,13 +3980,42 @@ function renderKarsilastirma(kapId,canvasId,sonuclar){
         <div class="k-baslik"><div class="k-baslik-sol"><i class="fas fa-chart-line"></i> Puan Değişimi</div></div>
         <div class="grafik-kap" style="height:300px;padding:8px 0"><canvas id="${canvasId}-puan"></canvas></div>
       </div>
-      <div class="kart">
+      <div class="kart" style="margin-bottom:16px">
         <div class="k-baslik"><div class="k-baslik-sol"><i class="fas fa-layer-group"></i> Toplam Net Değişimi</div></div>
         <div class="grafik-kap" style="height:300px;padding:8px 0"><canvas id="${canvasId}-topnet"></canvas></div>
+      </div>
+      <div class="kart" style="margin-bottom:16px">
+        <div class="k-baslik"><div class="k-baslik-sol"><i class="fas fa-chart-area"></i> Ders Bazlı Net Değişimi</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:8px 0">
+          ${dersGelisim.map((d,i)=>{
+            const deltaClr=d.fark>0?'#22c55e':d.fark<0?'#f87171':'#94a3b8';
+            const deltaSign=d.fark>0?'+':'';
+            return `<div style="background:#ffffff06;border:1px solid #ffffff10;border-radius:12px;padding:10px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                <span style="font-size:13px;font-weight:600;color:#e2e8f0">${d.emoji} ${d.ad}</span>
+                <span style="font-size:12px;font-weight:700;color:${deltaClr};background:${deltaClr}18;border-radius:10px;padding:2px 8px">${deltaSign}${d.fark}</span>
+              </div>
+              <div class="grafik-kap" style="height:200px"><canvas id="${canvasId}-ders-${i}"></canvas></div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="kart">
+        <div class="k-baslik"><div class="k-baslik-sol"><i class="fas fa-brain"></i> Başarı Analizi</div></div>
+        <div style="display:flex;flex-direction:column;gap:10px;padding:10px 0">
+          ${yorumlar.map(y=>`
+            <div style="display:flex;align-items:flex-start;gap:12px;background:#ffffff06;border:1px solid #ffffff10;border-radius:10px;padding:12px 14px">
+              <div style="min-width:32px;height:32px;border-radius:8px;background:${y.renk}18;display:flex;align-items:center;justify-content:center">
+                <i class="${y.ikon}" style="color:${y.renk};font-size:14px"></i>
+              </div>
+              <span style="font-size:13px;color:#cbd5e1;line-height:1.6">${y.metin}</span>
+            </div>`).join('')}
+        </div>
       </div>`;
 
     const baseOpts=gOpts();
     const bigOpts=()=>({...baseOpts,plugins:{...baseOpts.plugins,legend:{...baseOpts.plugins?.legend,display:true,position:'top',labels:{color:'#94a3b8',font:{size:11},boxWidth:12,padding:16}}},scales:{...baseOpts.scales,x:{...baseOpts.scales?.x,ticks:{color:'#94a3b8',font:{size:12}}},y:{...baseOpts.scales?.y,ticks:{color:'#94a3b8',font:{size:11}}}}});
+    const smallOpts=()=>({...baseOpts,plugins:{...baseOpts.plugins,legend:{display:false}},scales:{...baseOpts.scales,x:{...baseOpts.scales?.x,ticks:{color:'#94a3b8',font:{size:10},maxRotation:30}},y:{...baseOpts.scales?.y,ticks:{color:'#94a3b8',font:{size:10}},beginAtZero:false}}});
 
     grafikOlustur(canvasId+'-net',{type:'bar',data:{labels:dA,datasets:sonuclar.map((s,i)=>({
       label:s.deneme_adi,
@@ -3977,6 +4040,18 @@ function renderKarsilastirma(kapId,canvasId,sonuclar){
       pointRadius:5,pointHoverRadius:7,
       pointBackgroundColor:'#27c08a'}]},
       options:{...bigOpts(),scales:{...bigOpts().scales,y:{...bigOpts().scales?.y,beginAtZero:false}}}});
+
+    dersGelisim.forEach((d,i)=>{
+      grafikOlustur(canvasId+'-ders-'+i,{type:'line',data:{labels:labellar,datasets:[{
+        label:d.ad,
+        data:d.netler,
+        borderColor:d.renk,
+        backgroundColor:d.renk+'22',
+        fill:true,tension:0.4,borderWidth:2,
+        pointRadius:4,pointHoverRadius:6,
+        pointBackgroundColor:d.renk}]},
+        options:smallOpts()});
+    });
     return;
   }
 
