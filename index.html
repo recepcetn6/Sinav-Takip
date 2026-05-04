@@ -3791,8 +3791,11 @@ function detayHTML(s,d,ogrenci=true,ortalar=null){
       const okulOrt=ortalar.okul[dr.k];
       const maxVal=Math.max(val,subeOrt,okulOrt,0.1);
       const pct=v=>Math.round((v/maxVal)*100);
-      return`<div style="display:grid;grid-template-columns:90px 1fr 72px 72px;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid rgba(30,61,96,0.5)">
+      return`<div style="display:grid;grid-template-columns:90px 54px 1fr 72px 72px;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid rgba(30,61,96,0.5)">
         <div style="font-size:12px;font-weight:600;color:${dr.r};white-space:nowrap">${dr.e} ${dr.a}</div>
+        <div style="text-align:center">
+          <div style="font-size:17px;font-weight:800;color:${dr.r};font-family:'JetBrains Mono',monospace;line-height:1">${val.toFixed(2)}</div>
+        </div>
         <div style="position:relative;height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden">
           <div style="position:absolute;left:0;top:0;height:100%;width:${pct(okulOrt)}%;background:#4da8e840;border-radius:4px"></div>
           <div style="position:absolute;left:0;top:0;height:100%;width:${pct(subeOrt)}%;background:#4da8e870;border-radius:4px"></div>
@@ -3840,9 +3843,10 @@ function detayHTML(s,d,ogrenci=true,ortalar=null){
           </div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:90px 1fr 72px 72px;gap:10px;padding:0 4px 6px;border-bottom:1px solid rgba(30,61,96,0.8)">
+      <div style="display:grid;grid-template-columns:90px 54px 1fr 72px 72px;gap:10px;padding:0 4px 6px;border-bottom:1px solid rgba(30,61,96,0.8)">
         <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px">Ders</div>
-        <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px">Senin Netin →</div>
+        <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;text-align:center">Sen</div>
+        <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px">Karşılaştırma →</div>
         <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;text-align:center">Şube</div>
         <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;text-align:center">Okul</div>
       </div>
