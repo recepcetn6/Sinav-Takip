@@ -4182,8 +4182,8 @@ function gelisimYukle(){
       '<div class="gel-sparkline-kap"><canvas id="'+cid+'"></canvas></div>'+
       '<div class="gel-bm-row">'+
         '<div class="gel-bm-item"><div class="gel-bm-dot" style="background:'+dr.r+'"></div>Sizin</div>'+
-        '<div class="gel-bm-item"><div class="gel-bm-dot" style="background:rgba(143,164,188,0.5)"></div>Sınıf Ort.</div>'+
-        '<div class="gel-bm-item"><div class="gel-bm-dot" style="background:rgba(143,164,188,0.45)"></div>Okul Ort.</div>'+
+        '<div class="gel-bm-item"><div class="gel-bm-dot" style="background:rgba(96,165,250,0.7)"></div>Sınıf Ort.</div>'+
+        '<div class="gel-bm-item"><div class="gel-bm-dot" style="background:rgba(167,139,250,0.7)"></div>Okul Ort.</div>'+
         '<div class="gel-bm-detay"><i class="fas fa-expand-alt"></i> Detay</div>'+
       '</div>';
     dGrid.appendChild(div);
@@ -4202,10 +4202,10 @@ function gelisimYukle(){
               gr.addColorStop(0,dr.r+'55');gr.addColorStop(1,dr.r+'00');return gr;
             },
             fill:true,tension:0.45,borderWidth:2,pointRadius:2,pointHoverRadius:4,spanGaps:false},
-          {label:'Sınıf Ort',data:sinifOrt,borderColor:'rgba(143,164,188,0.35)',
+          {label:'Sınıf Ort',data:sinifOrt,borderColor:'rgba(96,165,250,0.55)',
             backgroundColor:'transparent',fill:false,tension:0.4,borderWidth:1.5,
             pointRadius:0,borderDash:[4,4],spanGaps:false},
-          {label:'Okul Ort',data:okulOrt,borderColor:'rgba(143,164,188,0.35)',
+          {label:'Okul Ort',data:okulOrt,borderColor:'rgba(167,139,250,0.55)',
             backgroundColor:'transparent',fill:false,tension:0.4,borderWidth:1.5,
             pointRadius:0,borderDash:[3,6],spanGaps:false}
         ]
@@ -4263,15 +4263,15 @@ function gelisimYukle(){
         }),
         pointBorderColor:'#0f1e35',pointBorderWidth:2,pointRadius:5,pointHoverRadius:9,borderWidth:2.5,spanGaps:false},
       {label:'Sınıf Ort.',data:sinifPuanOrt,
-        borderColor:'rgba(148,163,184,0.45)',borderDash:[5,4],
+        borderColor:'rgba(96,165,250,0.55)',borderDash:[5,4],
         fill:false,tension:0.4,borderWidth:1.5,
         pointRadius:3,pointHoverRadius:5,
-        pointBackgroundColor:'rgba(148,163,184,0.45)',spanGaps:false},
+        pointBackgroundColor:'rgba(96,165,250,0.55)',spanGaps:false},
       {label:'Okul Ort.',data:okulPuanOrt,
-        borderColor:'rgba(148,163,184,0.45)',borderDash:[3,6],
+        borderColor:'rgba(167,139,250,0.55)',borderDash:[3,6],
         fill:false,tension:0.4,borderWidth:1.5,
         pointRadius:0,pointHoverRadius:3,
-        pointBackgroundColor:'rgba(148,163,184,0.45)',spanGaps:false}
+        pointBackgroundColor:'rgba(167,139,250,0.55)',spanGaps:false}
     ]},
     options:{...gOpts(),plugins:{
       legend:{labels:{color:'#8fa4bc',font:{family:'Sora',size:11}}},
@@ -4397,8 +4397,8 @@ function gelisimDersAc(k){
     </div>
     <div class="gel-detay-legend">
       <div class="gel-detay-lej"><div class="gel-detay-lej-dot" style="background:${dr.r}"></div>Sizin Netiniz</div>
-      <div class="gel-detay-lej"><div class="gel-detay-lej-dot" style="background:rgba(148,163,184,0.5);height:1px;margin-top:1px"></div>Sınıf Ortalaması</div>
-      <div class="gel-detay-lej"><div class="gel-detay-lej-dot" style="background:rgba(148,163,184,0.45);height:1px;margin-top:1px"></div>Okul Ortalaması</div>
+      <div class="gel-detay-lej"><div class="gel-detay-lej-dot" style="background:rgba(96,165,250,0.7);height:1px;margin-top:1px"></div>Sınıf Ortalaması</div>
+      <div class="gel-detay-lej"><div class="gel-detay-lej-dot" style="background:rgba(167,139,250,0.7);height:1px;margin-top:1px"></div>Okul Ortalaması</div>
       <div class="gel-detay-lej"><div class="gel-detay-lej-dot" style="background:#34d399;border-radius:50%;width:8px;height:8px"></div>Tepe Nokta</div>
       <div class="gel-detay-lej"><div class="gel-detay-lej-dot" style="background:#f87171;border-radius:50%;width:8px;height:8px"></div>Düşük Nokta</div>
     </div>
@@ -4431,15 +4431,15 @@ function gelisimDersAc(k){
         pointBackgroundColor:dotColors,pointBorderColor:'#0f1e35',
         pointBorderWidth:2,pointRadius:dotSizes,pointHoverRadius:9,spanGaps:false},
       {label:'Sınıf Ort.',data:sinifOrt,
-        borderColor:'rgba(148,163,184,0.45)',borderDash:[5,4],
+        borderColor:'rgba(96,165,250,0.55)',borderDash:[5,4],
         fill:false,tension:0.4,borderWidth:1.5,
         pointRadius:3,pointHoverRadius:5,
-        pointBackgroundColor:'rgba(148,163,184,0.5)',spanGaps:false},
+        pointBackgroundColor:'rgba(96,165,250,0.55)',spanGaps:false},
       {label:'Okul Ort.',data:okulOrtD,
-        borderColor:'rgba(148,163,184,0.45)',borderDash:[3,6],
+        borderColor:'rgba(167,139,250,0.55)',borderDash:[3,6],
         fill:false,tension:0.4,borderWidth:1.5,
         pointRadius:0,pointHoverRadius:3,
-        pointBackgroundColor:'rgba(148,163,184,0.45)',spanGaps:false}
+        pointBackgroundColor:'rgba(167,139,250,0.55)',spanGaps:false}
     ]},
     options:{
       responsive:true,maintainAspectRatio:false,
