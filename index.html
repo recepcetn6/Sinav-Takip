@@ -3675,6 +3675,7 @@ function ogrenciBastir(){
       ? '<span class="okul-et"><i class="fas fa-school"></i> ' + OT.okul_adi + '</span>'
       : '';
   }
+
   document.getElementById('nav-bar').innerHTML=`
     <button class="nav-btn aktif" data-s="sonuclarim" onclick="sayfaGoster('sonuclarim');ogrDenemeleriYukle()"><i class="fas fa-list-alt"></i> Sonuçlarım</button>
     <button class="nav-btn" data-s="gelisim" onclick="sayfaGoster('gelisim');gelisimYukle()"><i class="fas fa-chart-line"></i> Gelişimim</button>
@@ -3742,13 +3743,113 @@ function detayGoster(dId){
     sayfaGoster('detay');
     document.querySelector('[data-s="sonuclarim"]')?.classList.add('aktif');
   }
-  document.getElementById('detay-icerik').innerHTML=detayHTML(s,d,true);
+  // Sınıf ve okul ortalamalarını hesapla
+  const tumSonuclar=db.sonuclar.filter(r=>r.deneme_id===dId);
+  const subeSonuclari=tumSonuclar.filter(r=>r.sinif===s.sinif&&r.sube===s.sube);
+  const ort=(liste,alan)=>liste.length?+(liste.reduce((a,r)=>a+(r[alan]||0),0)/liste.length).toFixed(2):0;
+  const ortalar={
+    sube:{puan:ort(subeSonuclari,'puan'),net:ort(subeSonuclari,'toplam_net'),
+          turkce:ort(subeSonuclari,'turkce_net'),sosyal:ort(subeSonuclari,'sosyal_net'),
+          din:ort(subeSonuclari,'din_net'),ingilizce:ort(subeSonuclari,'ingilizce_net'),
+          matematik:ort(subeSonuclari,'matematik_net'),fen:ort(subeSonuclari,'fen_net')},
+    okul:{puan:ort(tumSonuclar,'puan'),net:ort(tumSonuclar,'toplam_net'),
+          turkce:ort(tumSonuclar,'turkce_net'),sosyal:ort(tumSonuclar,'sosyal_net'),
+          din:ort(tumSonuclar,'din_net'),ingilizce:ort(tumSonuclar,'ingilizce_net'),
+          matematik:ort(tumSonuclar,'matematik_net'),fen:ort(tumSonuclar,'fen_net')},
+    subeAd:(s.sinif&&s.sube)?s.sinif+'-'+s.sube:'Şube',
+    subeSay:subeSonuclari.length,
+    okulSay:tumSonuclar.length
+  };
+  document.getElementById('detay-icerik').innerHTML=detayHTML(s,d,true,ortalar);
 }
 
-function detayHTML(s,d,ogrenci=true){
+function detayHTML(s,d,ogrenci=true,ortalar=null){
   var geriAksiyon = INCELENEN_OGRENCI
     ? "inceleGit('sonuclarim')"
     : "sayfaGoster('sonuclarim');ogrDenemeleriYukle()";
+
+  // Ortalama karşılaştırma kartı (sadece öğrenci görünümünde ve ortalama varsa)
+  var ortKartHTML='';
+  if(ogrenci && ortalar && ortalar.okulSay>1){
+    const dersler=[
+      {k:'turkce',a:'Türkçe',e:'📚',r:'#4da8e8'},
+      {k:'sosyal',a:'Sosyal',e:'🌍',r:'#06b6d4'},
+      {k:'din',a:'Din',e:'🕌',r:'#f97316'},
+      {k:'ingilizce',a:'İngilizce',e:'🌐',r:'#ec4899'},
+      {k:'matematik',a:'Matematik',e:'📐',r:'#a855f7'},
+      {k:'fen',a:'Fen',e:'🔬',r:'#22c55e'}
+    ];
+    const ind=(val,avg)=>val>avg
+      ? '<span style="color:#27c08a;font-size:11px;font-weight:700">▲</span>'
+      : val<avg
+        ? '<span style="color:#e85d4a;font-size:11px;font-weight:700">▼</span>'
+        : '<span style="color:#8fa4bc;font-size:11px">—</span>';
+
+    const satir=(dr)=>{
+      const val=+(s[dr.k+'_net']||0).toFixed(2);
+      const subeOrt=ortalar.sube[dr.k];
+      const okulOrt=ortalar.okul[dr.k];
+      const maxVal=Math.max(val,subeOrt,okulOrt,0.1);
+      const pct=v=>Math.round((v/maxVal)*100);
+      return`<div style="display:grid;grid-template-columns:90px 1fr 72px 72px;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid rgba(30,61,96,0.5)">
+        <div style="font-size:12px;font-weight:600;color:${dr.r};white-space:nowrap">${dr.e} ${dr.a}</div>
+        <div style="position:relative;height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden">
+          <div style="position:absolute;left:0;top:0;height:100%;width:${pct(okulOrt)}%;background:#4da8e840;border-radius:4px"></div>
+          <div style="position:absolute;left:0;top:0;height:100%;width:${pct(subeOrt)}%;background:#4da8e870;border-radius:4px"></div>
+          <div style="position:absolute;left:0;top:0;height:100%;width:${pct(val)}%;background:${dr.r};border-radius:4px"></div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:1px">${ortalar.subeAd}</div>
+          <div style="font-size:13px;font-weight:700;color:#8fa4bc">${subeOrt.toFixed(2)} ${ind(val,subeOrt)}</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:1px">Okul</div>
+          <div style="font-size:13px;font-weight:700;color:#8fa4bc">${okulOrt.toFixed(2)} ${ind(val,okulOrt)}</div>
+        </div>
+      </div>`;
+    };
+
+    const puanInd=ind(s.puan||0,ortalar.sube.puan);
+    const netInd=ind(s.toplam_net||0,ortalar.sube.net);
+
+    ortKartHTML=`<div class="kart" style="margin-top:16px">
+      <div class="k-baslik"><div class="k-baslik-sol"><i class="fas fa-chart-bar"></i> Şube & Okul Karşılaştırması</div>
+        <div style="font-size:11px;color:var(--text-muted)">${ortalar.subeSay} şube öğrencisi · ${ortalar.okulSay} okul geneli</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px">
+        <div style="background:var(--input-bg);border-radius:10px;padding:12px 14px">
+          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">${ortalar.subeAd} Şube Ort.</div>
+          <div style="display:flex;align-items:baseline;gap:10px">
+            <div><div style="font-size:10px;color:var(--text-muted)">Puan</div><div style="font-size:18px;font-weight:800;color:#4da8e8;font-family:'JetBrains Mono',monospace">${ortalar.sube.puan.toFixed(2)}</div></div>
+            <div><div style="font-size:10px;color:var(--text-muted)">Net</div><div style="font-size:18px;font-weight:800;color:#4da8e8;font-family:'JetBrains Mono',monospace">${ortalar.sube.net.toFixed(2)}</div></div>
+            <div style="margin-left:auto;text-align:right">
+              <div style="font-size:10px;color:var(--text-muted)">Senin Farkın</div>
+              <div style="font-size:14px;font-weight:700">${((s.puan||0)-ortalar.sube.puan).toFixed(2)} ${puanInd}</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--input-bg);border-radius:10px;padding:12px 14px">
+          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Okul Geneli Ort.</div>
+          <div style="display:flex;align-items:baseline;gap:10px">
+            <div><div style="font-size:10px;color:var(--text-muted)">Puan</div><div style="font-size:18px;font-weight:800;color:#06b6d4;font-family:'JetBrains Mono',monospace">${ortalar.okul.puan.toFixed(2)}</div></div>
+            <div><div style="font-size:10px;color:var(--text-muted)">Net</div><div style="font-size:18px;font-weight:800;color:#06b6d4;font-family:'JetBrains Mono',monospace">${ortalar.okul.net.toFixed(2)}</div></div>
+            <div style="margin-left:auto;text-align:right">
+              <div style="font-size:10px;color:var(--text-muted)">Senin Farkın</div>
+              <div style="font-size:14px;font-weight:700">${((s.puan||0)-ortalar.okul.puan).toFixed(2)} ${ind(s.puan||0,ortalar.okul.puan)}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:90px 1fr 72px 72px;gap:10px;padding:0 4px 6px;border-bottom:1px solid rgba(30,61,96,0.8)">
+        <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px">Ders</div>
+        <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px">Senin Netin →</div>
+        <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;text-align:center">Şube</div>
+        <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;text-align:center">Okul</div>
+      </div>
+      ${dersler.map(satir).join('')}
+    </div>`;
+  }
+
   return`<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap">
     ${ogrenci?`<button class="btn btn-o btn-sm" onclick="${geriAksiyon}"><i class="fas fa-arrow-left"></i> Geri</button>`:''}
     <h2 style="font-size:18px;font-weight:700">${d.deneme_adi}</h2>
@@ -3781,7 +3882,8 @@ function detayHTML(s,d,ogrenci=true){
       <div class="stat-kart"><div class="stat-ikon si-kirmizi"><i class="fas fa-times"></i></div><div><div class="s-label">Toplam Yanlış</div><div class="s-deger">${s.toplam_yanlis||0}</div></div></div>
       <div class="stat-kart"><div class="stat-ikon si-mavi"><i class="fas fa-school"></i></div><div><div class="s-label">Sınıf Sıralaması</div><div class="s-deger">#${s.sinif_siralama||0}</div></div></div>
     </div>
-  </div>`;
+  </div>
+  ${ortKartHTML}`;
 }
 
 // ---- KARŞILAŞTIRMA (öğrenci) ----
@@ -3837,6 +3939,7 @@ function profilYukle(){
   ['prf-mevcut','prf-yeni','prf-yeni2'].forEach(function(id){
     var el = document.getElementById(id); if (el) el.value = '';
   });
+
   document.getElementById('prf-mesaj').innerHTML = '';
 }
 
