@@ -3915,17 +3915,68 @@ function karsilastirSonuclariGetir(ids,ogrNo){
 }
 
 function renderKarsilastirma(kapId,canvasId,sonuclar){
-  // 3+ deneme: klasik bar chart (zaten iyi çalışıyor)
+  // 3+ deneme: çoklu büyük grafik, alt alta
   if(sonuclar.length>2){
     const dK=['turkce','sosyal','din','ingilizce','matematik','fen'];
     const dA=['Türkçe','Sosyal','Din','İngilizce','Matematik','Fen'];
-    const renkler=['#4da8e8','#27c08a','#e8a838','#a855f7','#e85d4a','#06b6d4'];
+    const renkler=['#4da8e8','#27c08a','#e8a838','#a855f7','#e85d4a','#06b6d4','#f97316','#14b8a6'];
+
+    const puanlar=sonuclar.map(s=>s.puan||0);
+    const toplamNetler=sonuclar.map(s=>s.toplam_net||0);
+    const enYuksekPuan=Math.max(...puanlar);
+    const enDusukPuan=Math.min(...puanlar);
+    const ortPuan=(puanlar.reduce((a,b)=>a+b,0)/puanlar.length).toFixed(0);
+    const enIyiIdx=puanlar.indexOf(enYuksekPuan);
+    const enIyiAd=sonuclar[enIyiIdx]?.deneme_adi||'-';
+
+    const chipStyle='display:inline-flex;align-items:center;gap:6px;background:#ffffff0d;border:1px solid #ffffff18;border-radius:20px;padding:5px 12px;font-size:12px;color:#cbd5e1';
+
     document.getElementById(kapId).innerHTML=`
-      <div class="kart"><div class="k-baslik"><div class="k-baslik-sol"><i class="fas fa-chart-bar"></i> Net Karşılaştırması (${sonuclar.length} Deneme)</div></div>
-        <div class="grafik-kap"><canvas id="${canvasId}"></canvas></div></div>`;
-    grafikOlustur(canvasId,{type:'bar',data:{labels:dA,datasets:sonuclar.map((s,i)=>({
-      label:s.deneme_adi,data:dK.map(dk=>s[dk+'_net']||0),
-      backgroundColor:renkler[i%renkler.length]+'99',borderColor:renkler[i%renkler.length],borderWidth:2,borderRadius:6}))},options:gOpts()});
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+        <span style="${chipStyle}"><i class="fas fa-trophy" style="color:#f59e0b"></i> En Yüksek Puan: <b style="color:#f0f4ff">${enYuksekPuan}</b></span>
+        <span style="${chipStyle}"><i class="fas fa-arrow-trend-down" style="color:#f87171"></i> En Düşük Puan: <b style="color:#f0f4ff">${enDusukPuan}</b></span>
+        <span style="${chipStyle}"><i class="fas fa-calculator" style="color:#60a5fa"></i> Ortalama Puan: <b style="color:#f0f4ff">${ortPuan}</b></span>
+        <span style="${chipStyle}"><i class="fas fa-star" style="color:#a78bfa"></i> En İyi Deneme: <b style="color:#f0f4ff">${enIyiAd}</b></span>
+      </div>
+      <div class="kart" style="margin-bottom:16px">
+        <div class="k-baslik"><div class="k-baslik-sol"><i class="fas fa-chart-bar"></i> Ders Bazlı Net Karşılaştırması (${sonuclar.length} Deneme)</div></div>
+        <div class="grafik-kap" style="height:380px;padding:8px 0"><canvas id="${canvasId}-net"></canvas></div>
+      </div>
+      <div class="kart" style="margin-bottom:16px">
+        <div class="k-baslik"><div class="k-baslik-sol"><i class="fas fa-chart-line"></i> Puan Değişimi</div></div>
+        <div class="grafik-kap" style="height:300px;padding:8px 0"><canvas id="${canvasId}-puan"></canvas></div>
+      </div>
+      <div class="kart">
+        <div class="k-baslik"><div class="k-baslik-sol"><i class="fas fa-layer-group"></i> Toplam Net Değişimi</div></div>
+        <div class="grafik-kap" style="height:300px;padding:8px 0"><canvas id="${canvasId}-topnet"></canvas></div>
+      </div>`;
+
+    const baseOpts=gOpts();
+    const bigOpts=()=>({...baseOpts,plugins:{...baseOpts.plugins,legend:{...baseOpts.plugins?.legend,display:true,position:'top',labels:{color:'#94a3b8',font:{size:11},boxWidth:12,padding:16}}},scales:{...baseOpts.scales,x:{...baseOpts.scales?.x,ticks:{color:'#94a3b8',font:{size:12}}},y:{...baseOpts.scales?.y,ticks:{color:'#94a3b8',font:{size:11}}}}});
+
+    grafikOlustur(canvasId+'-net',{type:'bar',data:{labels:dA,datasets:sonuclar.map((s,i)=>({
+      label:s.deneme_adi,
+      data:dK.map(dk=>+(s[dk+'_net']||0).toFixed(2)),
+      backgroundColor:renkler[i%renkler.length]+'99',
+      borderColor:renkler[i%renkler.length],
+      borderWidth:2,borderRadius:6}))},options:bigOpts()});
+
+    const labellar=sonuclar.map(s=>s.deneme_adi);
+    grafikOlustur(canvasId+'-puan',{type:'line',data:{labels:labellar,datasets:[{
+      label:'Puan',data:puanlar,
+      borderColor:'#4da8e8',backgroundColor:'#4da8e81a',
+      fill:true,tension:0.4,borderWidth:2.5,
+      pointRadius:5,pointHoverRadius:7,
+      pointBackgroundColor:'#4da8e8'}]},
+      options:{...bigOpts(),scales:{...bigOpts().scales,y:{...bigOpts().scales?.y,beginAtZero:false}}}});
+
+    grafikOlustur(canvasId+'-topnet',{type:'line',data:{labels:labellar,datasets:[{
+      label:'Toplam Net',data:toplamNetler,
+      borderColor:'#27c08a',backgroundColor:'#27c08a1a',
+      fill:true,tension:0.4,borderWidth:2.5,
+      pointRadius:5,pointHoverRadius:7,
+      pointBackgroundColor:'#27c08a'}]},
+      options:{...bigOpts(),scales:{...bigOpts().scales,y:{...bigOpts().scales?.y,beginAtZero:false}}}});
     return;
   }
 
